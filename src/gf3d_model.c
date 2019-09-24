@@ -1,5 +1,7 @@
 #include <assert.h>
 
+#include <stdio.h>
+
 #include "simple_logger.h"
 
 #include "gf3d_model.h"

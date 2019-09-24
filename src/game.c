@@ -19,9 +19,9 @@ int main(int argc,char *argv[])
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
-    Model *model;
+    Model *model = NULL;
     Matrix4 modelMat;
-    Model *model2;
+    Model *model2 = NULL;
     Matrix4 modelMat2;
     
     for (a = 1; a < argc;a++)
@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
     slog("gf3d main loop begin");
     model = gf3d_model_load("dino");
     gfc_matrix_identity(modelMat);
-    model2 = gf3d_model_load("dino");
+//    model2 = gf3d_model_load("dito");
     gfc_matrix_identity(modelMat2);
     gfc_matrix_make_translation(
             modelMat2,
@@ -78,7 +78,7 @@ int main(int argc,char *argv[])
             commandBuffer = gf3d_command_rendering_begin(bufferFrame);
 
                 gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat);
-                gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
+  //              gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
                 
             gf3d_command_rendering_end(commandBuffer);
             
