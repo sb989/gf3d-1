@@ -10,7 +10,7 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    vec3 lightVector = vec3(0,0,1);
+    vec3 lightVector = vec3(0,0,1); //default values are (0,0,1)
     float cosTheta = dot( fragNormal,lightVector );
     vec4 baseColor = texture(texSampler, fragTexCoord);
     outColor = baseColor + baseColor * cosTheta;

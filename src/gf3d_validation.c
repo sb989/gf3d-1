@@ -24,12 +24,12 @@ void gf3d_validation_query_layer_properties()
     int i;
     vkEnumerateInstanceLayerProperties(&gf3d_validation.layerCount, NULL);
     slog("discovered %i validation layers",gf3d_validation.layerCount);
-    
+
     if (!gf3d_validation.layerCount)return;
-    
+
     gf3d_validation.availableLayers = (VkLayerProperties *)gfc_allocate_array(sizeof(VkLayerProperties),gf3d_validation.layerCount);
     vkEnumerateInstanceLayerProperties(&gf3d_validation.layerCount, gf3d_validation.availableLayers);
-    
+
     gf3d_validation.layerNames = (const char* * )gfc_allocate_array(sizeof(const char *),gf3d_validation.layerCount);
     for (i = 0; i < gf3d_validation.layerCount;i++)
     {

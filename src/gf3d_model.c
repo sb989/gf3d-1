@@ -54,7 +54,7 @@ void gf3d_model_manager_init(Uint32 max_models,Uint32 chain_length,VkDevice devi
     gf3d_model.max_models = max_models;
     gf3d_model.device = device;
     gf3d_model.pipe = gf3d_vgraphics_get_graphics_pipeline();
-    
+
     slog("model manager initiliazed");
     atexit(gf3d_model_manager_close);
 }
@@ -87,7 +87,7 @@ Model * gf3d_model_load(char * filename)
 
     snprintf(assetname,GFCLINELEN,"images/%s.png",filename);
     model->texture = gf3d_texture_load(assetname);
-    
+    slog("here1");
     return model;
 }
 
@@ -100,7 +100,7 @@ void gf3d_model_delete(Model *model)
 {
     int i;
     if (!model)return;
-    
+
     for (i = 0; i < model->uniformBufferCount; i++)
     {
         vkDestroyBuffer(gf3d_model.device, model->uniformBuffers[i], NULL);
@@ -153,8 +153,8 @@ void gf3d_model_update_basic_model_descriptor_set(Model *model,VkDescriptorSet d
     gf3d_model_update_uniform_buffer(model,chainIndex,modelMat);
     bufferInfo.buffer = model->uniformBuffers[chainIndex];
     bufferInfo.offset = 0;
-    bufferInfo.range = sizeof(UniformBufferObject);        
-    
+    bufferInfo.range = sizeof(UniformBufferObject);
+
     descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     descriptorWrite[0].dstSet = descriptorSet;
     descriptorWrite[0].dstBinding = 0;
@@ -168,7 +168,7 @@ void gf3d_model_update_basic_model_descriptor_set(Model *model,VkDescriptorSet d
     descriptorWrite[1].dstBinding = 1;
     descriptorWrite[1].dstArrayElement = 0;
     descriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWrite[1].descriptorCount = 1;                        
+    descriptorWrite[1].descriptorCount = 1;
     descriptorWrite[1].pImageInfo = &imageInfo;
     descriptorWrite[1].pTexelBufferView = NULL; // Optional
 
@@ -182,7 +182,7 @@ void gf3d_model_update_uniform_buffer(Model *model,uint32_t currentImage,Matrix4
     ubo = gf3d_vgraphics_get_uniform_buffer_object();
     gfc_matrix_copy(ubo.model,modelMat);
     vkMapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
-    
+
         memcpy(data, &ubo, sizeof(UniformBufferObject));
 
     vkUnmapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage]);

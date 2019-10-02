@@ -1,4 +1,4 @@
-#include <SDL.h>            
+#include <SDL.h>
 
 #include "simple_logger.h"
 #include "gfc_vector.h"
@@ -23,7 +23,7 @@ int main(int argc,char *argv[])
     Matrix4 modelMat;
     Model *model2;
     Matrix4 modelMat2;
-    
+
     for (a = 1; a < argc;a++)
     {
         if (strcmp(argv[a],"-disable_validate") == 0)
@@ -31,8 +31,8 @@ int main(int argc,char *argv[])
             validate = 0;
         }
     }
-    
-    init_logger("gf3d.log");    
+
+    init_logger("gf3d.log");
     slog("gf3d begin");
     gf3d_vgraphics_init(
         "gf3d",                 //program name
@@ -42,23 +42,33 @@ int main(int argc,char *argv[])
         0,                      //fullscreen
         validate                //validation
     );
-    
+
     // main game loop
     slog("gf3d main loop begin");
     model = gf3d_model_load("dino");
     gfc_matrix_identity(modelMat);
+    slog("finish dino 1");
     model2 = gf3d_model_load("dino");
     gfc_matrix_identity(modelMat2);
+    //slog("finish dino 2");
+
     gfc_matrix_make_translation(
             modelMat2,
             vector3d(10,0,0)
         );
+    slog("here2");
+    
     while(!done)
     {
+      //char * error;
+      //slog("gere1");
         SDL_PumpEvents();   // update SDL's internal event structures
+        //SDL_PollEvent();
+        //slog(error);
+        //slog("gere2");
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
-        
+      //  slog("here3");
         gf3d_vgraphics_rotate_camera(0.001);
         gfc_matrix_rotate(
             modelMat,
@@ -79,15 +89,17 @@ int main(int argc,char *argv[])
 
                 gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat);
                 gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
-                
+
             gf3d_command_rendering_end(commandBuffer);
-            
+
         gf3d_vgraphics_render_end(bufferFrame);
 
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
-    }    
-    
-    vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());    
+        vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());
+
+        //SDL_PumpEvents();
+    }
+
     //cleanup
     slog("gf3d program end");
     slog_sync();
