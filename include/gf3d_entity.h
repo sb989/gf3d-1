@@ -14,15 +14,15 @@ typedef struct Entity_S
 {
     Uint8           _inuse;         /**<flag to keep track if this isntance is in use and should not be reassigned*/
     Model          *model;          /**<the 3d model for this entity*/
-    Vector3         position;       /**<position of the entity in 3d space*/
-    Vector3         velocity;       /**<velocity of the entity in 3d space*/
-    Vector3         acceleration;   /**<acceleration of the entity in 3d space*/
-    Vector3         rotation;       /**<yaw, pitch, and roll of the entity*/
-    Vector3         scale;          /**<*please default to 1,1,1*/
+    Vector3D        position;       /**<position of the entity in 3d space*/
+    Vector3D        velocity;       /**<velocity of the entity in 3d space*/
+    Vector3D        acceleration;   /**<acceleration of the entity in 3d space*/
+    Vector3D        rotation;       /**<yaw, pitch, and roll of the entity*/
+    Vector3D        scale;          /**<*please default to 1,1,1*/
     EntityState     state;          /**<current state of the entity*/
-    void (think*)(struct Entity_S* self);   /**<function called on entity think*/
-    void (update*)(struct Entity_S* self);   /**<function called on entity update*/
-    void (touch*)(struct Entity_S* self,struct Entity_S* other);   /**<function called on entity think*/
+    void (*think) (struct Entity_S* self);   /**<function called on entity think*/
+    void (*update)(struct Entity_S* self);   /**<function called on entity update*/
+    void (*touch) (struct Entity_S* self,struct Entity_S* other);   /**<function called on entity think*/
     float           health;
     float           healthmax;
     float           armor;

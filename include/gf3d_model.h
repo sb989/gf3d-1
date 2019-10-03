@@ -38,7 +38,8 @@ typedef struct
 {
     Uint8                       _inuse;
     TextLine                    filename;
-    Mesh                    *   mesh;
+    Uint32                      frameCount;         /**<how many frames are loaded for this model*/
+    Mesh                    **  mesh;
     Texture                 *   texture;
     VkDescriptorSet         *   descriptorSet;
     VkBuffer                   *uniformBuffers;
@@ -50,6 +51,16 @@ typedef struct
 void gf3d_model_manager_init(Uint32 max_models,Uint32 chain_length,VkDevice device);
 
 Model * gf3d_model_load(char * filename);
+
+/**
+ * @brief load an animated OBJ file
+ * @param filename the path and name of the obj files (without the _0000#.obj extention)
+ * @param starfFrame the starting frame number of the animated obj
+ * @param endFrame the ending frame number of the animated obj
+ * @return NULL on error (See logs) or a valid pointer to a Model
+ */
+Model * gf3d_model_load_animated(char * filename,Uint32 startFrame, Uint32 endFrame);
+
 Model * gf3d_model_new();
 /**
  * @brief queue up a model for rendering
@@ -57,8 +68,9 @@ Model * gf3d_model_new();
  * @param bufferFrame the swap chain frame to render for
  * @param commandBuffer the command used to send this render request
  * @param modelMat the model matrix (MVP)
+ * @param frame the frame of animation to use for the model
  */
-void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat);
+void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat,Uint32 frame);
 void gf3d_model_free(Model *model);
 
 /**

@@ -35,7 +35,6 @@ void gf3d_entity_manager_init(Uint32 entity_max)
 
 Entity *gf3d_entity_new()
 {
-    Entity *ent = NULL;
     int i;
     for (i = 0; i < gf3d_entity_manager.entity_max; i++)
     {
