@@ -38,6 +38,7 @@ typedef struct
 {
     Uint8                       _inuse;
     TextLine                    filename;
+    Uint32                    frameCount;
     Mesh                    *   mesh;
     Texture                 *   texture;
     VkDescriptorSet         *   descriptorSet;

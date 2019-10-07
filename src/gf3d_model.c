@@ -81,13 +81,14 @@ Model * gf3d_model_load(char * filename)
     TextLine assetname;
     Model *model;
     model = gf3d_model_new();
+    slog(filename);
     if (!model)return NULL;
     snprintf(assetname,GFCLINELEN,"models/%s.obj",filename);
     model->mesh = gf3d_mesh_load(assetname);
-
+    //slog("potato");
     snprintf(assetname,GFCLINELEN,"images/%s.png",filename);
     model->texture = gf3d_texture_load(assetname);
-    slog("here1");
+    //slog("here1");
     return model;
 }
 

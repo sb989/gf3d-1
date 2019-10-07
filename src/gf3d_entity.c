@@ -31,19 +31,23 @@ void gf3d_entity_manager_init(Uint32 entity_max)
     slog("failed to allocate entity list");
     return;
   }
-  atexit(gf3d_entity_manger_close);
+  atexit(gf3d_entity_manager_close);
 }
 
 Entity *gf3d_entity_new()
 {
-  Entity *ent = NULL:
+  Entity *ent = NULL;
   int i;
-  for(i = 0; i<gf3d.entity_manager.entity_max; i++)
+  for(i = 0; i<gf3d_entity_manager.entity_max; i++)
   {
-      if(gf3d_entity_manager.entity_list[i]._inuse)contune;
-      //memset(&gf3d_entity_manager.entity_list[i])
+      if(gf3d_entity_manager.entity_list[i]._inuse)continue;
+      //. found a free entity
+       memset(&gf3d_entity_manager.entity_list[i],0,sizeof(Entity));
+       gf3d_entity_manager.entity_list[i]._inuse = 1;
+       return &gf3d_entity_manager.entity_list[i];
   }
-  return NULL:
+  slog("request for entity failed: all full up");
+  return NULL;
 }
 
 void gf3d_entity_free(Entity *self)
@@ -53,6 +57,12 @@ void gf3d_entity_free(Entity *self)
     slog("self pointer is not valid");
     return;
   }
+  self->_inuse = 0;
+   gf3d_model_free(self->model);
+   if (self->data != NULL)
+   {
+       slog("warning: data not freed at entity free!");
+   }
 }
 
 /*eol@eof*/

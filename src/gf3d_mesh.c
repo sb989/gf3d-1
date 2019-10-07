@@ -36,7 +36,7 @@ void gf3d_mesh_init(Uint32 mesh_max)
     }
     atexit(gf3d_mesh_close);
     gf3d_mesh.mesh_max = mesh_max;
-    
+
     gf3d_mesh.bindingDescription.binding = 0;
     gf3d_mesh.bindingDescription.stride = sizeof(Vertex);
     gf3d_mesh.bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -50,7 +50,7 @@ void gf3d_mesh_init(Uint32 mesh_max)
     gf3d_mesh.attributeDescriptions[1].location = 1;
     gf3d_mesh.attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     gf3d_mesh.attributeDescriptions[1].offset = offsetof(Vertex, normal);
-    
+
     gf3d_mesh.attributeDescriptions[2].binding = 0;
     gf3d_mesh.attributeDescriptions[2].location = 2;
     gf3d_mesh.attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
@@ -180,11 +180,11 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
     }
     pipe = gf3d_vgraphics_get_graphics_pipeline();
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh->buffer, offsets);
-    
+
     vkCmdBindIndexBuffer(commandBuffer, mesh->faceBuffer, 0, VK_INDEX_TYPE_UINT32);
-    
+
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 0, NULL);
-    
+
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
 }
 
@@ -196,7 +196,7 @@ void gf3d_mesh_setup_face_buffers(Mesh *mesh,Face *faces,Uint32 fcount)
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    
+
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
@@ -216,15 +216,15 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
 {
     void *data = NULL;
     VkDevice device = gf3d_vgraphics_get_default_logical_device();
-    size_t bufferSize;    
-    
+    size_t bufferSize;
+
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
     bufferSize = sizeof(Vertex) * vcount;
-    
+
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
-    
+
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices, (size_t) bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
@@ -235,12 +235,12 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
 
     vkDestroyBuffer(device, stagingBuffer, NULL);
     vkFreeMemory(device, stagingBufferMemory, NULL);
-    
+
     mesh->vertexCount = vcount;
     mesh->bufferMemory = mesh->bufferMemory;
-    
+
     gf3d_mesh_setup_face_buffers(mesh,faces,fcount);
-    
+
     slog("created a mesh with %i vertices and %i face",vcount,fcount);
 }
 
@@ -250,19 +250,20 @@ Mesh *gf3d_mesh_load(char *filename)
     ObjData *obj;
     mesh = gf3d_mesh_get_by_filename(filename);
     if (mesh)return mesh;
-    
+    slog("crack");
     obj = gf3d_obj_load_from_file(filename);
-    
+
     if (!obj)
     {
         return NULL;
     }
-    
+
     mesh = gf3d_mesh_new();
     if (!mesh)
     {
         return NULL;
     }
+
     gf3d_mesh_create_vertex_buffer_from_vertices(mesh,obj->faceVertices,obj->face_vert_count,obj->outFace,obj->face_count);
     gf3d_obj_free(obj);
     gfc_line_cpy(mesh->filename,filename);

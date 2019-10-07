@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "simple_logger.h"
 
 #include "gf3d_obj_load.h"
@@ -9,7 +11,7 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file);
 void gf3d_obj_free(ObjData *obj)
 {
     if (!obj)return;
-    
+
     if (obj->vertices != NULL)
     {
         free(obj->vertices);
@@ -22,7 +24,7 @@ void gf3d_obj_free(ObjData *obj)
     {
         free(obj->texels);
     }
-    
+
     if (obj->faceVerts != NULL)
     {
         free(obj->faceVerts);
@@ -35,17 +37,17 @@ void gf3d_obj_free(ObjData *obj)
     {
         free(obj->faceTexels);
     }
-    
+
     if (obj->faceVertices != NULL)
     {
         free(obj->faceVertices);
     }
-    
+
     if (obj->outFace != NULL)
     {
         free(obj->outFace);
     }
-    
+
     free(obj);
 }
 
@@ -54,13 +56,13 @@ void gf3d_obj_load_reorg(ObjData *obj)
     int i,f;
     int vert = 0;
     int vertexIndex,normalIndex,texelIndex;
-    
+
     if (!obj)return;
-    
+
     obj->face_vert_count = obj->face_count*3;
     obj->faceVertices = (Vertex *)gfc_allocate_array(sizeof(Vertex),obj->face_vert_count);
     obj->outFace = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
-    
+
     for (i = 0; i < obj->face_count;i++)
     {
         for (f = 0; f < 3;f++,vert++)
@@ -68,11 +70,11 @@ void gf3d_obj_load_reorg(ObjData *obj)
             vertexIndex = obj->faceVerts[i].verts[f];
             normalIndex = obj->faceNormals[i].verts[f];
             texelIndex = obj->faceTexels[i].verts[f];
-            
+
             vector3d_copy(obj->faceVertices[vert].vertex,obj->vertices[vertexIndex]);
             vector3d_copy(obj->faceVertices[vert].normal,obj->normals[normalIndex]);
             vector2d_copy(obj->faceVertices[vert].texel,obj->texels[texelIndex]);
-            
+
             obj->outFace[i].verts[f] = vert;
         }
     }
@@ -90,17 +92,26 @@ ObjData *gf3d_obj_load_from_file(char *filename)
     }
     obj = (ObjData*)gfc_allocate_array(sizeof(ObjData),1);
     if (!obj)return NULL;
-    
+
     gf3d_obj_get_counts_from_file(obj, file);
-    
+
     obj->vertices = (Vector3D *)gfc_allocate_array(sizeof(Vector3D),obj->vertex_count);
     obj->normals = (Vector3D *)gfc_allocate_array(sizeof(Vector3D),obj->normal_count);
     obj->texels = (Vector2D *)gfc_allocate_array(sizeof(Vector2D),obj->texel_count);
-    
+    //slog(sizeof((obj->vertices)));
+    //slog("finsih first allocate chunk");
+    //int sizze = sizeof(obj->normals);
+    //char buffer [10];
+    //slog(sizze);
+    //itoa(sizze,buffer,10);
+    //slog(buffer);
+    //slog(sizeof(obj->normals));//->x);
+    //slog(obj->normals->y);
+    //slog(obj->normals->z);
     obj->faceVerts = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
     obj->faceNormals = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
     obj->faceTexels = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
-    
+    //slog("finis second allocate chunk");
     gf3d_obj_load_get_data_from_file(obj, file);
     fclose(file);
     gf3d_obj_load_reorg(obj);
@@ -170,7 +181,7 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file)
 
   if (file == NULL)
     return;
-  
+
   rewind(file);
   while(fscanf(file, "%s", buf) != EOF)
   {
@@ -227,23 +238,23 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file)
             &f[0][0],
             &f[0][1],
             &f[0][2],
-            
+
             &f[1][0],
             &f[1][1],
             &f[1][2],
-            
+
             &f[2][0],
             &f[2][1],
             &f[2][2]);
-        
+
         obj->faceVerts[numfaces].verts[0]   = f[0][0] - 1;
         obj->faceTexels[numfaces].verts[0]  = f[0][1] - 1;
         obj->faceNormals[numfaces].verts[0] = f[0][2] - 1;
-        
+
         obj->faceVerts[numfaces].verts[1]   = f[1][0] - 1;
         obj->faceTexels[numfaces].verts[1]  = f[1][1] - 1;
         obj->faceNormals[numfaces].verts[1] = f[1][2] - 1;
-        
+
         obj->faceVerts[numfaces].verts[2]   = f[2][0] - 1;
         obj->faceTexels[numfaces].verts[2]  = f[2][1] - 1;
         obj->faceNormals[numfaces].verts[2] = f[2][2] - 1;

@@ -1,5 +1,5 @@
 #include <SDL.h>
-
+#include <math.h>
 #include "simple_logger.h"
 #include "gfc_vector.h"
 #include "gfc_matrix.h"
@@ -23,6 +23,8 @@ int main(int argc,char *argv[])
     Matrix4 modelMat;
     Model *model2;
     Matrix4 modelMat2;
+    Model *model3;
+    Matrix4 modelMat3;
 
     for (a = 1; a < argc;a++)
     {
@@ -48,16 +50,42 @@ int main(int argc,char *argv[])
     model = gf3d_model_load("dino");
     gfc_matrix_identity(modelMat);
     slog("finish dino 1");
+
     model2 = gf3d_model_load("dino");
     gfc_matrix_identity(modelMat2);
+    slog("finish dino 2");
+
+    model3 = gf3d_model_load("basic_level");
+    //slog("house");
+    gfc_matrix_identity(modelMat3);
+    slog("finish house");
     //slog("finish dino 2");
 
     gfc_matrix_make_translation(
             modelMat2,
             vector3d(10,0,0)
         );
+    gfc_matrix_make_translation(
+            modelMat3,
+            vector3d(4,28,-.7)
+        );
     slog("here2");
-    
+
+    gfc_matrix_rotate(
+          modelMat3,
+          modelMat3,
+          M_PI/2,
+          vector3d(1,0,0)
+    );
+
+    gfc_matrix_rotate(
+          modelMat3,
+          modelMat3,
+          M_PI/2,
+          vector3d(0,1,0)
+    );
+
+
     while(!done)
     {
       //char * error;
@@ -69,7 +97,7 @@ int main(int argc,char *argv[])
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
       //  slog("here3");
-        gf3d_vgraphics_rotate_camera(0.001);
+        //gf3d_vgraphics_rotate_camera(0.001);
         gfc_matrix_rotate(
             modelMat,
             modelMat,
@@ -89,7 +117,7 @@ int main(int argc,char *argv[])
 
                 gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat);
                 gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
-
+                gf3d_model_draw(model3,bufferFrame,commandBuffer,modelMat3);
             gf3d_command_rendering_end(commandBuffer);
 
         gf3d_vgraphics_render_end(bufferFrame);
