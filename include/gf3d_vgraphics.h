@@ -23,7 +23,7 @@ void gf3d_vgraphics_init(
 );
 
 /**
- * @brief After initialization 
+ * @brief After initialization
  */
 VkDevice gf3d_vgraphics_get_default_logical_device();
 
@@ -42,8 +42,8 @@ void gf3d_vgraphics_copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
 
 uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-void gf3d_vgraphics_rotate_camera(float degrees);
-
+void gf3d_vgraphics_rotate_camera(float degrees,Vector3D plane);
+void gf3d_vgraphics_move_camera(Vector3D distance);
 VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index);
 UniformBufferObject gf3d_vgraphics_get_uniform_buffer_object();
 

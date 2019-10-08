@@ -250,7 +250,7 @@ Mesh *gf3d_mesh_load(char *filename)
     ObjData *obj;
     mesh = gf3d_mesh_get_by_filename(filename);
     if (mesh)return mesh;
-    slog("crack");
+
     obj = gf3d_obj_load_from_file(filename);
 
     if (!obj)
