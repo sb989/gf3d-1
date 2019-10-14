@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
     // main game loop
     slog("gf3d main loop begin");
 //    model = gf3d_model_load("dino");
-    model = gf3d_model_load_animated("agumon_animated",5, 29);
+    model = gf3d_model_load_animated("dino_anim",5, 29);
 
     gfc_matrix_identity(modelMat);
 //    model2 = gf3d_model_load("dito");
