@@ -11,8 +11,7 @@
 #include "gf3d_camera.h"
 #include "gf3d_texture.h"
 #include "gf3d_create_obj.h"
-#include "gf3d_kd_tree.h"
-#include "gfc_list.h"
+
 int main(int argc,char *argv[])
 {
     int done = 0;
@@ -134,11 +133,19 @@ int main(int argc,char *argv[])
         }
         if(keys[SDL_SCANCODE_A])
         {
-
+          gf3d_physics_set_velocity(player,vector3d(-1,0,0));
         }
         if(keys[SDL_SCANCODE_D])
         {
-
+          gf3d_physics_set_velocity(player,vector3d(1,0,0));
+        }
+        if(keys[SDL_SCANCODE_W])
+        {
+          gf3d_physics_set_velocity(player,vector3d(0,1,0));
+        }
+        if(keys[SDL_SCANCODE_S])
+        {
+          gf3d_physics_set_velocity(player,vector3d(0,-1,0));
         }
         //g
         // get the keyboard state for this frame
