@@ -10,6 +10,16 @@ typedef enum
     ES_Dead = 2
 }EntityState;
 
+typedef struct
+{
+  float           boundingX1;
+  float           boundingX2;
+  float           boundingY1;
+  float           boundingY2;
+  float           boundingZ1;
+  float           boundingZ2;
+}BoundingBox;
+
 typedef struct Entity_S
 {
     Uint8           _inuse;         /**<flag to keep track if this isntance is in use and should not be reassigned*/
@@ -30,7 +40,14 @@ typedef struct Entity_S
     float           level;
     float           lastUpdate;
     float           otherStuff;
+    BoundingBox     *entityBoundingBoxes;
     Matrix4         *entityMat;
+    Bool             isEnvironment;
+    Bool             isEnvironment2;
+    float            width;
+    float            depth;
+    float            height;
+    char            *name;
     void *data;                     /**<additional entity specific data*/
 
 }Entity;
@@ -54,5 +71,10 @@ Entity *gf3d_entity_new();
 void    gf3d_entity_free(Entity *self);
 void gf3d_update_all_entities();
 void update_entity(Entity *e);
+
+void gf3d_set_entity_bounding_box(Entity *e);
+
+int gf3d_entity_manager_get_size();
+Entity * gf3d_entity_manager_get_entity(int n);
 
 #endif

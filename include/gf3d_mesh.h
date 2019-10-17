@@ -19,6 +19,12 @@ typedef struct
 
 typedef struct
 {
+  Vector3D vertex[3];
+  Vector3D centroid;
+}FaceVertex;
+
+typedef struct
+{
     TextLine        filename;
     Uint32          _refCount;
     Uint8           _inuse;
@@ -28,6 +34,10 @@ typedef struct
     Uint32          faceCount;
     VkBuffer        faceBuffer;
     VkDeviceMemory  faceBufferMemory;
+    Vector3D        *vertices;
+    Vector3D        max_vertices;
+    Vector3D        min_vertices;
+    FaceVertex      **face_bounding_boxes;
 }Mesh;
 
 /**
@@ -79,5 +89,8 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
  * @param fcount how many faces are in the array
  */
 void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Uint32 vcount,Face *faces,Uint32 fcount);
+
+Vector3D find_max_v(void *var, Uint32 vcount,int type);
+Vector3D find_min_v(void *var, Uint32 vcount, int type);
 
 #endif

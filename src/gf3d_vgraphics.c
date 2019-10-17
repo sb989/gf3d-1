@@ -116,7 +116,7 @@ void gf3d_vgraphics_init(
         45 * GFC_DEGTORAD,
         renderWidth/(float)renderHeight,
         0.1f,
-        100
+        300
     );
 
     gf3d_vgraphics.ubo.proj[1][1] *= -1;
@@ -617,14 +617,10 @@ int gf3d_vgraphics_create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, Vk
         slog("failed to create buffer!");
         return 0;
     }
-
     vkGetBufferMemoryRequirements(gf3d_vgraphics.device, *buffer, &memRequirements);
-
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = gf3d_vgraphics_find_memory_type(memRequirements.memoryTypeBits, properties);
-
-
     if (vkAllocateMemory(gf3d_vgraphics.device, &allocInfo, NULL, bufferMemory) != VK_SUCCESS)
     {
         slog("failed to allocate buffer memory!");

@@ -80,6 +80,7 @@ Mesh *gf3d_mesh_new()
         {
             gf3d_mesh.mesh_list[i]._inuse = 1;
             gf3d_mesh.mesh_list[i]._refCount = 1;
+            slog("returning unused mesh");
             return &gf3d_mesh.mesh_list[i];
         }
     }
@@ -90,9 +91,11 @@ Mesh *gf3d_mesh_new()
             gf3d_mesh_delete(&gf3d_mesh.mesh_list[i]);
             gf3d_mesh.mesh_list[i]._inuse = 1;
             gf3d_mesh.mesh_list[i]._refCount = 1;
+            slog("returning recyled mesh");
             return &gf3d_mesh.mesh_list[i];
         }
     }
+    slog("returning null");
     return NULL;
 }
 
@@ -132,7 +135,9 @@ void gf3d_mesh_close()
     {
         gf3d_mesh_free_all();
         // TODO: iterate through mesh data and free all data
+
         free(gf3d_mesh.mesh_list);
+
         gf3d_mesh.mesh_list = NULL;
     }
     slog("mesh system closed");
@@ -161,6 +166,8 @@ void gf3d_mesh_delete(Mesh *mesh)
         vkFreeMemory(gf3d_vgraphics_get_default_logical_device(), mesh->bufferMemory, NULL);
         slog("mesh %s vert buffer memory freed",mesh->filename);
     }
+    //free(mesh->face_bounding_boxes);
+    //free(mesh->vertices);
     memset(mesh,0,sizeof(Mesh));
 }
 
@@ -222,15 +229,15 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
     VkDeviceMemory stagingBufferMemory;
 
     bufferSize = sizeof(Vertex) * vcount;
-
+    slog("vcount was used");
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices, (size_t) bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
-
+    slog("line 231");
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->buffer, &mesh->bufferMemory);
-
+    slog("mesh used");
     gf3d_vgraphics_copy_buffer(stagingBuffer, mesh->buffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, NULL);
@@ -248,7 +255,8 @@ Mesh *gf3d_mesh_load(char *filename)
 {
     Mesh *mesh;
     ObjData *obj;
-    mesh = gf3d_mesh_get_by_filename(filename);
+    int i,j;
+    mesh = gf3d_mesh_get_by_filename(filename); //determines if mesh has already been loaded; if it has been loaded returns the mesh from memory
     if (mesh)return mesh;
 
     obj = gf3d_obj_load_from_file(filename);
@@ -264,10 +272,105 @@ Mesh *gf3d_mesh_load(char *filename)
         return NULL;
     }
 
+    mesh->face_bounding_boxes = (FaceVertex**)malloc(sizeof(FaceVertex*)*(obj->face_vert_count+1));
+    for(i = 0;i<obj->face_vert_count;i++)
+    {
+      for(j=0;j<3;j++){
+        Vector3D temp;
+
+        //copies Vector3D from vertex to temp
+        temp = obj->faceVertices[i].vertex;//vector3d(obj->faceVertices[i].vertex.x,obj->faceVertices[i].vertex.y,obj->faceVertices[i].vertex.z);
+
+        //assigns the jth vertex in the ith face the value of temp
+        mesh->face_bounding_boxes[i] = (FaceVertex*)malloc(sizeof(FaceVertex));
+        mesh->face_bounding_boxes[i]->vertex[j] = temp;
+
+        }
+    }
+    mesh->max_vertices = find_max_v(obj->faceVertices,obj->face_vert_count,0);
+    mesh->min_vertices = find_min_v(obj->faceVertices,obj->face_vert_count,0);
+
     gf3d_mesh_create_vertex_buffer_from_vertices(mesh,obj->faceVertices,obj->face_vert_count,obj->outFace,obj->face_count);
     gf3d_obj_free(obj);
     gfc_line_cpy(mesh->filename,filename);
+
+
     return mesh;
+}
+Vector3D find_max_v(void *var, Uint32 vcount,int type)
+{
+  int i;
+  float x,y,z;
+  if(type == 0)
+  {
+    Vertex *v = (Vertex*) var;
+    x = v[0].vertex.x;
+    y = v[0].vertex.y;
+    z = v[0].vertex.z;
+    for(i=0;i<vcount;i++)
+    {
+      if(v[i].vertex.x >= x) x = v[i].vertex.x;
+
+      if(v[i].vertex.y >= y) y = v[i].vertex.y;
+
+      if(v[i].vertex.z >= z) z = v[i].vertex.z;
+    }
+  }
+  else if(type == 1)
+  {
+    Vector3D *v = (Vector3D*) var;
+    x = v[0].x;
+    y = v[0].y;
+    z = v[0].z;
+    for(i=0;i<vcount;i++)
+    {
+      if(v[i].x >= x) x = v[i].x;
+
+      if(v[i].y >= y) y = v[i].y;
+
+      if(v[i].z >= z) z = v[i].z;
+    }
+  }
+  return vector3d(x,y,z);
+  //return h;
+}
+
+Vector3D  find_min_v(void *var, Uint32 vcount,int type)
+{
+  int i;
+  float x,y,z;
+  if(type == 0)
+  {
+    Vertex *v = (Vertex*) var;
+    x = v[0].vertex.x;
+    y = v[0].vertex.y;
+    z = v[0].vertex.z;
+    for(i=0;i<vcount;i++)
+    {
+      if(v[i].vertex.x < x) x = v[i].vertex.x;
+
+      if(v[i].vertex.y < y) y = v[i].vertex.y;
+
+      if(v[i].vertex.z < z) z = v[i].vertex.z;
+    }
+  }
+  else if(type == 1)
+  {
+    Vector3D *v = (Vector3D*) var;
+    x = v[0].x;
+    y = v[0].y;
+    z = v[0].z;
+    for(i=0;i<vcount;i++)
+    {
+      if(v[i].x < x) x = v[i].x;
+
+      if(v[i].y < y) y = v[i].y;
+
+      if(v[i].z < z) z = v[i].z;
+    }
+  }
+  return vector3d(x,y,z);
+  //return h;
 }
 
 /*eol@eof*/
