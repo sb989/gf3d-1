@@ -11,12 +11,30 @@ void gf3d_physics_set_time(){
   t = clock();
 }
 
-void gf3d_physics_collision_push_back(Entity *e)
+void gf3d_physics_collision_push_back(Entity *e,Vector3D push)
 {
-  Vector3D vel = e->velocity;
-  gf3d_physics_set_velocity(e, vector3d(0,0,0));
+
+  //gf3d_physics_set_velocity(e, vector3d(0,0,0));
+
+  //vector3d_scale(vel,vel,1/10);
+  //vector3d_negate(e->velocity,vel);
   Vector3D dist;
-  vector3d_scale(dist,-vel,.001);
+  if(push.z != 0)
+  {
+    vector3d_scale(dist,push,.007);
+    e->velocity.z = 0;
+  }
+  else if(push.x!=0)
+  {
+    vector3d_scale(dist,push,.2);
+    e->velocity.x = 0;
+  }
+  else
+  {
+    vector3d_scale(dist,push,.2);
+    e->velocity.y = 0;
+  }
+  //vector3d_scale(dist,-vel,.1095);
   Matrix4 temp;
   gfc_matrix_copy(temp,*(e->entityMat));
   gfc_matrix_translate(temp,dist);
@@ -30,24 +48,22 @@ void gf3d_physics_update(Entity * e)
 {
   //Vector3D pos = e->position;
   Matrix4 mat;
-
   Vector3D vel = e->velocity;
   Vector3D acel = e->acceleration;
   float lastUpdate = e->lastUpdate;
   Vector3D dist;
   float deltaT = gf3d_physics_current_time()-lastUpdate;
-  deltaT = deltaT/200000;
+  if(vel.x != 0 && vel.y != 0 && vel.z != 0)
+  {
+    e->lastVel = vel;
+  }
+  deltaT = deltaT/100000;
   vector3d_scale(dist,vel,deltaT);
   //slog("%f",deltaT);
   Matrix4 temp;
   gfc_matrix_copy(temp,*(e->entityMat));
   gfc_matrix_translate(temp,dist);
-  //slog("%f,%f",dist.z,e->entityBoundingBoxes[0].boundingZ1);
 
-  //slog("%f,%f",dist.z,e->entityBoundingBoxes[0].boundingZ1);
-  //gfc_matrix_translate(*(e->entityMat),dist);
-  //vector3d_add(e->position,pos,dist);
-  //slog("moved the entity");
   Vector3D deltaV;
   vector3d_scale(deltaV,acel,deltaT);
   vector3d_add(e->velocity,vel,deltaV);
@@ -71,6 +87,10 @@ void gf3d_physics_set_velocity(Entity *e, Vector3D velocity)
   e->velocity = velocity;
 }
 
+void gf3d_physics_add_velocity(Entity *e,Vector3D velocity)
+{
+  vector3d_add(e->velocity,e->velocity,velocity);
+}
 
 void gf3d_physics_set_acceleration(Entity *e, Vector3D acceleration)
 {

@@ -17,11 +17,6 @@ typedef struct
     Uint32  verts[3];
 }Face;
 
-typedef struct
-{
-  Vector3D vertex[3];
-  Vector3D centroid;
-}FaceVertex;
 
 typedef struct
 {
@@ -37,7 +32,7 @@ typedef struct
     Vector3D        *vertices;
     Vector3D        max_vertices;
     Vector3D        min_vertices;
-    FaceVertex      **face_bounding_boxes;
+
 }Mesh;
 
 /**

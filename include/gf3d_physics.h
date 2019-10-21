@@ -11,8 +11,9 @@ void gf3d_physics_set_time();
 float gf3d_physics_current_time();
 
 void gf3d_physics_update(Entity *e);
-
+void gf3d_physics_collision_push_back(Entity *e,Vector3D push);
 void gf3d_physics_set_velocity(Entity *e,Vector3D velocity);
 void gf3d_physics_set_acceleration(Entity *e, Vector3D acceleration);
+void gf3d_physics_add_velocity(Entity *e,Vector3D velocity);
 
 #endif

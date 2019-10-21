@@ -166,8 +166,7 @@ void gf3d_mesh_delete(Mesh *mesh)
         vkFreeMemory(gf3d_vgraphics_get_default_logical_device(), mesh->bufferMemory, NULL);
         slog("mesh %s vert buffer memory freed",mesh->filename);
     }
-    //free(mesh->face_bounding_boxes);
-    //free(mesh->vertices);
+
     memset(mesh,0,sizeof(Mesh));
 }
 
@@ -272,21 +271,8 @@ Mesh *gf3d_mesh_load(char *filename)
         return NULL;
     }
 
-    mesh->face_bounding_boxes = (FaceVertex**)malloc(sizeof(FaceVertex*)*(obj->face_vert_count+1));
-    for(i = 0;i<obj->face_vert_count;i++)
-    {
-      for(j=0;j<3;j++){
-        Vector3D temp;
 
-        //copies Vector3D from vertex to temp
-        temp = obj->faceVertices[i].vertex;//vector3d(obj->faceVertices[i].vertex.x,obj->faceVertices[i].vertex.y,obj->faceVertices[i].vertex.z);
 
-        //assigns the jth vertex in the ith face the value of temp
-        mesh->face_bounding_boxes[i] = (FaceVertex*)malloc(sizeof(FaceVertex));
-        mesh->face_bounding_boxes[i]->vertex[j] = temp;
-
-        }
-    }
     mesh->max_vertices = find_max_v(obj->faceVertices,obj->face_vert_count,0);
     mesh->min_vertices = find_min_v(obj->faceVertices,obj->face_vert_count,0);
 

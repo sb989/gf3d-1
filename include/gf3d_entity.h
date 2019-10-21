@@ -20,6 +20,21 @@ typedef struct
   float           boundingZ2;
 }BoundingBox;
 
+typedef struct
+{
+  Vector3D planeVert[4];
+}Plane;
+
+typedef struct
+{
+  Plane xy1;
+  Plane xy2;
+  Plane xz1;
+  Plane xz2;
+  Plane yz1;
+  Plane yz2;
+}CubePlane;
+
 typedef struct Entity_S
 {
     Uint8           _inuse;         /**<flag to keep track if this isntance is in use and should not be reassigned*/
@@ -40,14 +55,19 @@ typedef struct Entity_S
     float           level;
     float           lastUpdate;
     float           otherStuff;
-    BoundingBox     *entityBoundingBoxes;
+    BoundingBox     entityBoundingBoxes;
     Matrix4         *entityMat;
-    Bool             isEnvironment;
-    Bool             isEnvironment2;
-    float            width;
-    float            depth;
-    float            height;
+    Bool            isEnvironment;
+    Bool            isEnvironment2;
+    float           width;
+    float           depth;
+    float           height;
     char            *name;
+    int             mass;
+    Vector3D        lastVel;
+    CubePlane       cp;
+    int             numAnimations;
+
     void *data;                     /**<additional entity specific data*/
 
 }Entity;
@@ -71,10 +91,13 @@ Entity *gf3d_entity_new();
 void    gf3d_entity_free(Entity *self);
 void gf3d_update_all_entities();
 void update_entity(Entity *e);
-
+void gf3d_entity_sync_position(Entity *e);
 void gf3d_set_entity_bounding_box(Entity *e);
-
+Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame);
+void gf3d_entity_move(Entity * e,float x,float y,float z);
+void gf3d_entity_draw(Entity * e,int frame,Uint32 bufferFrame,VkCommandBuffer commandBuffer);
 int gf3d_entity_manager_get_size();
 Entity * gf3d_entity_manager_get_entity(int n);
 
+void gf3d_entity_setup_cube_plane(Entity * e);
 #endif
