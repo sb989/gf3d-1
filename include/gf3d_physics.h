@@ -6,7 +6,7 @@
 
 
 
-static float t;
+static double t;
 void gf3d_physics_set_time();
 float gf3d_physics_current_time();
 

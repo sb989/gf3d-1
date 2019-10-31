@@ -16,10 +16,10 @@ Bool gf3d_collision_is_colliding(Entity * e1,Entity * other1)
   if(e.boundingX1 <= other.boundingX2 && e.boundingX2 >= other.boundingX1)
   {
 
-    if(e.boundingY1 <= other.boundingY2 && e.boundingY2 >= other.boundingY1)
+    if(e.boundingY1-5 <= other.boundingY2 && e.boundingY2-.5 >= other.boundingY1)
     {
 
-      if(e.boundingZ1 <= other.boundingZ2 && e.boundingZ2 >= other.boundingZ1)
+      if(e.boundingZ1 <= other.boundingZ2+.5 && e.boundingZ2 >= other.boundingZ1-.5)
       {
         return true;
       }
@@ -51,11 +51,17 @@ void gf3d_collision_update_entity(Entity *e)
         //slog("%s,%s",e->name,other->name);
         if(gf3d_collision_is_colliding(e,other))
         {
-            slog("colliding with %s",other->name);
-            slog("%f<=%f && %f>=%f",e->entityBoundingBoxes.boundingY1,other->entityBoundingBoxes.boundingY2,e->entityBoundingBoxes.boundingY2,other->entityBoundingBoxes.boundingY1);
+          //  slog("colliding with %s",other->name);
+          //  slog("%f<=%f && %f>=%f",e->entityBoundingBoxes.boundingY1,other->entityBoundingBoxes.boundingY2,e->entityBoundingBoxes.boundingY2,other->entityBoundingBoxes.boundingY1);
             //slog(gf3d_face_collision_detection(e,other));
             Vector3D push = gf3d_face_collision_detection(e,other);
-            gf3d_physics_collision_push_back(e,push);
+            if(other->isEnemy && e->velocity.z<-.5)
+            {
+              gf3d_physics_attack_enemy(e,push);
+              other->state = ES_Dead;
+            }
+            else
+              gf3d_physics_collision_push_back(e,push);
 
         }
       }
@@ -101,38 +107,38 @@ Vector3D gf3d_face_collision_detection(Entity * e, Entity * other)
   {
 
     case(0):
-      if(b2.boundingY1<b1.boundingY2)
+      if(b2.boundingY1<b1.boundingY2-.5)
       {
-        yDiff = b1.boundingY2 - b2.boundingY1;
+        yDiff = b1.boundingY2-.5 - b2.boundingY1;
         yDir = -1;
       }
       break;
     case(1):
-      if(b1.boundingY1<b2.boundingY2)
+      if(b1.boundingY1-5<b2.boundingY2)
       {
-        yDiff = b2.boundingY2 - b1.boundingY1;
+        yDiff = b2.boundingY2 - b1.boundingY1-5;
 
       }
       break;
   }
-  slog("%f",b1.boundingY2 - b2.boundingY2);
+  //slog("%f",b1.boundingY2 - b2.boundingY2);
   switch((b1.boundingZ2 - b2.boundingZ2)>=0)
   {
     case(0):
-      if(b2.boundingZ1<b1.boundingZ2)
+      if(b2.boundingZ1-.5<b1.boundingZ2+.5)
       {
-        zDiff = b1.boundingZ2 - b2.boundingZ1;
+        zDiff = b1.boundingZ2+.5 - b2.boundingZ1-.5;
         zDir = -1;
       }
       break;
     case(1):
-      if(b1.boundingZ1<b2.boundingZ2)
+      if(b1.boundingZ1-.5<b2.boundingZ2+.5)
       {
-        zDiff = b2.boundingZ2 - b1.boundingZ1;
+        zDiff = b2.boundingZ2+.5 - b1.boundingZ1-.5;
       }
       break;
   }
-  slog("xDiff:%f\tyDiff:%f\tzDiff:%f",xDiff,yDiff,zDiff);
+  //slog("xDiff:%f\tyDiff:%f\tzDiff:%f",xDiff,yDiff,zDiff);
   if(xDiff < yDiff)
   {
     if(xDiff < zDiff)

@@ -69,7 +69,7 @@ void gf3d_entity_free(Entity *self)
     }
 }
 
-Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame)
+Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame, Bool isEnemy)
 {
   Entity * temp = gf3d_entity_new();
   Model * m;
@@ -101,6 +101,7 @@ Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int en
   temp->velocity = vector3d(0,0,0);
   temp->acceleration = vector3d(0,0,0);
   temp->lastUpdate = 0;
+  temp->isEnemy = isEnemy;
   slog("before");
   gf3d_set_entity_bounding_box(temp);
   slog("created bounding box successfully");
@@ -117,6 +118,7 @@ void gf3d_entity_move(Entity * e,float x,float y,float z)
 
 void gf3d_entity_draw(Entity * e,int frame,Uint32 bufferFrame,VkCommandBuffer commandBuffer)
 {
+  if(e->state != ES_Dead)
   gf3d_model_draw(e->model,bufferFrame,commandBuffer,(*e->entityMat),frame);
 }
 
@@ -135,7 +137,7 @@ void gf3d_update_all_entities()
   {
     Entity *temp = &gf3d_entity_manager.entity_list[i];
     if(temp->_inuse == 0) continue;
-    update_entity(temp);
+    update_entity(temp,0,0);
     if(temp->isEnvironment2) continue;
 
     //collisions = gfc_list_new();
@@ -144,12 +146,12 @@ void gf3d_update_all_entities()
 
   }
 }
-void update_entity(Entity *e)
+void update_entity(Entity *e, int num,int frame)
 {
-  slog("update");
+//  slog("update");
   gf3d_physics_update(e);
 
-  gf3d_update_entity_bounding_box(e);
+  gf3d_update_entity_bounding_box(e,num,frame);
 }
 
 void gf3d_set_entity_bounding_box(Entity *e)
@@ -177,27 +179,90 @@ void gf3d_set_entity_bounding_box(Entity *e)
     //BoundingBox b = e->entityBoundingBoxes;
     //gf3d_collision_print_collision_box(b);
 }
-void gf3d_update_entity_bounding_box(Entity *e)
+void gf3d_update_entity_bounding_box(Entity *e,int num,int frame)
 {
   int i,numBB;
-  Mesh * m = e->model->mesh[0];
-    gf3d_entity_sync_position(e);
+  Mesh * m;
+  if(!num)
+    m = e->model->mesh[frame];
+  else
+    m = e->secondaryModel->mesh[frame];
+  gf3d_entity_sync_position(e);
 
-    e->width = m->max_vertices.x - m->min_vertices.x;
-    e->height = m->max_vertices.z - m->min_vertices.z;
-    e->depth = m->max_vertices.y - m->min_vertices.y;
-    //slog("width =%f height =%f depth =%f",e->width,e->height,e->depth);
-    e->entityBoundingBoxes.boundingX1 = e->position.x - e->width/2;
-    e->entityBoundingBoxes.boundingX2 = e->position.x + e->width/2;
-    e->entityBoundingBoxes.boundingY1 = e->position.y - e->depth/2;
-    e->entityBoundingBoxes.boundingY2 = e->position.y + e->depth/2;
-    e->entityBoundingBoxes.boundingZ1 = e->position.z - e->height/2;
-    e->entityBoundingBoxes.boundingZ2 = e->position.z + e->height/2;
-    //BoundingBox b = e->entityBoundingBoxes;
-    //gf3d_entity_setup_cube_plane(e);
-    //gf3d_collision_print_collision_box(b);
+  e->width = m->max_vertices.x - m->min_vertices.x;
+  e->height = m->max_vertices.z - m->min_vertices.z;
+  e->depth = m->max_vertices.y - m->min_vertices.y;
+  //slog("width =%f height =%f depth =%f",e->width,e->height,e->depth);
+  e->entityBoundingBoxes.boundingX1 = e->position.x - e->width/2;
+  e->entityBoundingBoxes.boundingX2 = e->position.x + e->width/2;
+  e->entityBoundingBoxes.boundingY1 = e->position.y - e->depth/2;
+  e->entityBoundingBoxes.boundingY2 = e->position.y + e->depth/2;
+  e->entityBoundingBoxes.boundingZ1 = e->position.z - e->height/2;
+  e->entityBoundingBoxes.boundingZ2 = e->position.z + e->height/2;
+
+}
+//rotates box along z axis
+void gf3d_rotate_entity_bounding_box(Entity *e,int num,int frame,float angle)
+{
+  Mesh * m;
+  float x1,x2,y1,y2,z1,z2;
+  int d;
+  if(!num)
+    m = e->model->mesh[frame];
+  else
+    m = e->secondaryModel->mesh[frame];
+  x1 = e->entityBoundingBoxes.boundingX1;
+  y1 = e->entityBoundingBoxes.boundingY1;
+  z1 = e->entityBoundingBoxes.boundingZ1;
+  x2 = e->entityBoundingBoxes.boundingX2;
+  y2 = e->entityBoundingBoxes.boundingY2;
+  z2 = e->entityBoundingBoxes.boundingZ2;
+  Vector3D points [24] = {vector3d(x1,y1,z1),vector3d(x2,y1,z1),
+  vector3d(x2,y2,z1),vector3d(x1,y2,z1),vector3d(x1,y1,z2),
+  vector3d(x2,y1,z2),vector3d(x2,y2,z2),vector3d(x1,y2,z2),
+  vector3d(x1,y1,z1),vector3d(x2,y1,z1),vector3d(x2,y1,z2),
+  vector3d(x1,y1,z2),vector3d(x1,y2,z1),vector3d(x2,y2,z1),
+  vector3d(x2,y2,z2),vector3d(x1,y2,z2),vector3d(x1,y1,z1),
+  vector3d(x1,y1,z2),vector3d(x1,y2,z2),vector3d(x1,y2,z1),
+  vector3d(x2,y1,z1),vector3d(x2,y1,z2),vector3d(x2,y2,z2),
+  vector3d(x2,y2,z1)};
+  slog("-------------------");
+  for(d=0;d<24;d++)
+  {
+
+    gf3d_entity_rotate_point(&e->position,&points[d],angle);
+  }
+  slog("-------------------");
+  m->max_vertices = find_max_v(&points,24,1);
+  m->min_vertices = find_min_v(&points,24,1);
+  float temp = m->max_vertices.x;
+  m->max_vertices.x = m->max_vertices.y;
+  m->max_vertices.y = temp;
+  temp = m->min_vertices.x;
+  m->min_vertices.x = m->min_vertices.y;
+  m->min_vertices.y = temp;
+  //slog("max vrerts = [%f,%f,%f]",m->max_vertices.x,m->max_vertices.y,m->max_vertices.z);
+  gf3d_update_entity_bounding_box(e,num,frame);
+  slog("width =%f height =%f depth =%f",e->width,e->height,e->depth);
 }
 
+void gf3d_entity_rotate_point(Vector3D * pivot, Vector3D * rotate,float angle)
+{
+  float x,y;
+  x = cos(angle) * (rotate->x -pivot->x) - sin(angle) *(rotate->y-pivot->y) + pivot->x;
+  y = sin(angle) * (rotate->x -pivot->x) + cos(angle) *(rotate->y-pivot->y) + pivot->y;
+  //float r = sqrt((rotate->x-pivot->x)*(rotate->x-pivot->x) + (rotate->y-pivot->y)*(rotate->y-pivot->y));
+  //slog("r = %f",r);
+  //slog("angle = %f",angle);
+  //x = 1/r;
+  //x = x/(sqrt(2-2*cos(angle)));
+  //y = x;
+  //x = x*(sin(-angle/2));
+  //y = y*(cos(-angle/2));
+  slog("%f,%f",x,y);
+  rotate->x = x;//rotate->x +x;
+  rotate->y = y;//rotate->y+y;
+}
 Entity * gf3d_entity_manager_get_entity(int n)
 {
     return &gf3d_entity_manager.entity_list[n];

@@ -1,5 +1,7 @@
 #include <math.h>
-#include <gf3d_physics.h>
+#include <string.h>
+#include "gf3d_physics.h"
+#include "gf3d_vgraphics.h"
 #include "simple_logger.h"
 
 float gf3d_physics_current_time()
@@ -7,10 +9,24 @@ float gf3d_physics_current_time()
   return clock() - t;
 }
 
-void gf3d_physics_set_time(){
+void gf3d_physics_set_time()
+{
   t = clock();
 }
-
+void gf3d_physics_teleport(Entity *e,Vector3D dist)
+{
+  Matrix4 temp;
+  gfc_matrix_copy(temp,*(e->entityMat));
+  gfc_matrix_translate(temp,dist);
+  gfc_matrix_copy(*(e->entityMat),temp);
+  e->position.x = temp[3][0];
+  e->position.y = temp[3][1];
+  e->position.z = temp[3][2];
+}
+void gf3d_physics_attack_enemy(Entity *e,Vector3D push)
+{
+  vector3d_negate(e->velocity,e->velocity);
+}
 void gf3d_physics_collision_push_back(Entity *e,Vector3D push)
 {
 
@@ -42,6 +58,11 @@ void gf3d_physics_collision_push_back(Entity *e,Vector3D push)
   e->position.x = temp[3][0];
   e->position.y = temp[3][1];
   e->position.z = temp[3][2];
+  if(strcmp(e->name,"mario")==0)
+  {
+    //slog("mario");
+    //gf3d_vgraphics_move_camera(dist);
+  }
 
 }
 void gf3d_physics_update(Entity * e)
@@ -50,7 +71,7 @@ void gf3d_physics_update(Entity * e)
   Matrix4 mat;
   Vector3D vel = e->velocity;
   Vector3D acel = e->acceleration;
-  float lastUpdate = e->lastUpdate;
+  double lastUpdate = e->lastUpdate;
   Vector3D dist;
   float deltaT = gf3d_physics_current_time()-lastUpdate;
   if(vel.x != 0 && vel.y != 0 && vel.z != 0)
@@ -58,6 +79,7 @@ void gf3d_physics_update(Entity * e)
     e->lastVel = vel;
   }
   deltaT = deltaT/100000;
+  //deltaT = deltaT/CLOCKS_PER_SEC;
   vector3d_scale(dist,vel,deltaT);
   //slog("%f",deltaT);
   Matrix4 temp;
@@ -73,7 +95,18 @@ void gf3d_physics_update(Entity * e)
   e->position.x = mat[3][0];
   e->position.y = mat[3][1];
   e->position.z = mat[3][2];
-
+  if(strcmp(e->name,"mario")==0)
+  {
+    Vector3D cam,camPos;
+    cam = vector3d(0,0,0);
+    camPos = gf3d_vgraphics_camera_position();
+    if(camPos.y-mat[3][1]>20)
+      cam.y = dist.y;
+    if(camPos.z-mat[3][2] >10)
+      cam.z = dist.z;
+    cam.x = dist.x;
+    gf3d_vgraphics_move_camera(cam);
+  }
   //slog("%f",e->position.z);
   //slog("matrix");
   //gfc_matrix_slog(*(e->entityMat));

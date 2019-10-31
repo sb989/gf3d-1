@@ -39,6 +39,7 @@ typedef struct Entity_S
 {
     Uint8           _inuse;         /**<flag to keep track if this isntance is in use and should not be reassigned*/
     Model          *model;          /**<the 3d model for this entity*/
+    Model          *secondaryModel;  /**<secondary 3d model for entity if needed*/
     Vector3D        position;       /**<position of the entity in 3d space*/
     Vector3D        velocity;       /**<velocity of the entity in 3d space*/
     Vector3D        acceleration;   /**<acceleration of the entity in 3d space*/
@@ -53,7 +54,7 @@ typedef struct Entity_S
     float           armor;
     float           experience;
     float           level;
-    float           lastUpdate;
+    double           lastUpdate;
     float           otherStuff;
     BoundingBox     entityBoundingBoxes;
     Matrix4         *entityMat;
@@ -67,7 +68,7 @@ typedef struct Entity_S
     Vector3D        lastVel;
     CubePlane       cp;
     int             numAnimations;
-
+    Bool            isEnemy;
     void *data;                     /**<additional entity specific data*/
 
 }Entity;
@@ -90,14 +91,16 @@ Entity *gf3d_entity_new();
  */
 void    gf3d_entity_free(Entity *self);
 void gf3d_update_all_entities();
-void update_entity(Entity *e);
+void update_entity(Entity *e,int num,int frame);
 void gf3d_entity_sync_position(Entity *e);
 void gf3d_set_entity_bounding_box(Entity *e);
-Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame);
+Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame,Bool isEnemy);
 void gf3d_entity_move(Entity * e,float x,float y,float z);
 void gf3d_entity_draw(Entity * e,int frame,Uint32 bufferFrame,VkCommandBuffer commandBuffer);
 int gf3d_entity_manager_get_size();
 Entity * gf3d_entity_manager_get_entity(int n);
+void gf3d_rotate_entity_bounding_box(Entity *e,int num,int frame,float angle);
+void gf3d_entity_rotate_point(Vector3D * pivot, Vector3D * rotate,float angle);
 
 void gf3d_entity_setup_cube_plane(Entity * e);
 #endif

@@ -666,6 +666,11 @@ void gf3d_vgraphics_move_camera(Vector3D distance)
   );
 }
 
+Vector3D gf3d_vgraphics_camera_position()
+{
+  return vector3d(gf3d_vgraphics.ubo.view[3][0],gf3d_vgraphics.ubo.view[3][1],gf3d_vgraphics.ubo.view[3][2]);
+}
+
 Pipeline *gf3d_vgraphics_get_graphics_pipeline()
 {
     return gf3d_vgraphics.pipe;

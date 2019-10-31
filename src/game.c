@@ -21,11 +21,14 @@ int main(int argc,char *argv[])
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
 
-    Entity *player;
-    Entity *floor;
+
+    Entity *floor0,*floor1,*floor2,*floor3;
     Entity *wall;
-    Entity *wall2;
-    Entity *testSquare;
+    Entity *wall2,*wall3,*wall4,*wall5,*wall6;
+    Entity *pillar0,*pillar1,*pillar2;
+    Entity *bar0,*bar1,*bar2,*bar3;
+    Entity *player;
+    Entity * toad, *goomba, *koopa;
     for (a = 1; a < argc;a++)
     {
         if (strcmp(argv[a],"-disable_validate") == 0)
@@ -56,128 +59,130 @@ int main(int argc,char *argv[])
     gf3d_vgraphics_move_camera(vector3d(0,0,-50));
     gf3d_vgraphics_move_camera(vector3d(0,-20,0));
 
-    //gfc_matrix_translate(modelMat5,vector3d(0,4,0));
 
-    player = gf3d_entity_init("mario",false,0,1);
-    player->acceleration = vector3d(0,0,-9.8);
-    slog("mario created");
+    floor0 = gf3d_entity_init("floor0",true,0,1,false);
+    //floor1 = gf3d_entity_init("floor1",true,0,1);
+    //floor2 = gf3d_entity_init("floor2",true,0,1);
+    //floor3 = gf3d_entity_init("floor3",true,0,1);
+    //gf3d_entity_move(floor1,0,152,0);
+    //gf3d_entity_move(floor2,-87,120,0);
+    //gf3d_entity_move(floor3,-87,196,0);
+    //gf3d_update_entity_bounding_box(floor1,0,0);
+    //gf3d_update_entity_bounding_box(floor2,0,0);
+    //gf3d_update_entity_bounding_box(floor3,0,0);
+    koopa = gf3d_entity_init("koopa",false,0,1,true);
+    goomba = gf3d_entity_init("goomba",false,0,1,true);
+    toad = gf3d_entity_init("toad",false,0,1,true);
+    gf3d_entity_move(koopa,-30,0,8);
+    gf3d_entity_move(goomba,-35,5,8);
+    gf3d_entity_move(toad,-40,7,8);
+    gf3d_update_entity_bounding_box(toad,0,0);
+    gf3d_update_entity_bounding_box(goomba,0,0);
+    gf3d_update_entity_bounding_box(koopa,0,0);
 
-    floor = gf3d_entity_init("floor",true,0,1);
-    //floor->position.x = modelMat3[3][0];
-    //floor->position.y = modelMat3[3][1];
-    //floor->position.z = modelMat3[3][2];
-    slog("floor created");
-
-    //testSquare = gf3d_entity_init("test_square",false,0,1);
-    wall = gf3d_entity_init("wall",true,0,1);
-    //wall->position.x = modelMat[3][0];
-    //wall->position.y = modelMat[3][1];
-    //wall->position.z = modelMat[3][2];
-    slog("wall created");
-  //  gf3d_collision_print_collision_box(wall->entityBoundingBoxes);
-
-    //wall->position.x = modelMat[3][0];
-    //wall->position.y = modelMat[3][1];
-    //wall->position.z = modelMat[3][2];
-
-    wall2 = gf3d_entity_init("wall2",true,0,1);
-    //wall->position.x = modelMat[3][0];
-    //wall->position.y = modelMat[3][1];
-    //wall->position.z = modelMat[3][2];
-//gf3d_update_entity_bounding_box(wall);
+    wall = gf3d_entity_init("wall",true,0,1,false);
+    wall2 = gf3d_entity_init("wall2",true,0,1,false);
+  //  wall3 = gf3d_entity_init("wall3",true,0,1);
+    wall4 = gf3d_entity_init("wall4",true,0,1,false);
+    wall5 = gf3d_entity_init("wall5",true,0,1,false);
+    wall6 = gf3d_entity_init("wall6",true,0,1,false);
     gf3d_entity_move(wall,0,-(wall->height)/2,(wall->height)/2);
     gf3d_entity_move(wall2,0,(wall->height)/2,(wall->height)/2);
-    gf3d_entity_move(player,0,0,10);
-    //gf3d_entity_move(testSquare,4,0,5);
-    gf3d_update_entity_bounding_box(player);
-    gf3d_update_entity_bounding_box(wall);
-    gf3d_update_entity_bounding_box(wall2);
-    gf3d_physics_set_time();
+    slog("wall height = %f",wall->height);
+  //  gf3d_entity_move(wall3,-20,185,19);
+    gf3d_entity_move(wall4,35,-5,19);
+    gf3d_entity_move(wall5,50,-5,25);
+    gf3d_entity_move(wall6,65,-5,19);
 
+    gf3d_update_entity_bounding_box(wall,0,0);
+    gf3d_update_entity_bounding_box(wall2,0,0);
+  //  gf3d_update_entity_bounding_box(wall3,0,0);
+    gf3d_update_entity_bounding_box(wall4,0,0);
+    gf3d_update_entity_bounding_box(wall5,0,0);
+    gf3d_update_entity_bounding_box(wall6,0,0);
+
+    pillar0 = gf3d_entity_init("pillar0",true,0,1,false);
+    pillar1 = gf3d_entity_init("pillar1",true,0,1,false);
+    pillar2 = gf3d_entity_init("pillar2",true,0,1,false);
+
+    gf3d_entity_move(pillar0,0,-10,17);//-14,105,17);
+    gf3d_entity_move(pillar1,-10,-10,37);//-15,118,37);
+    gf3d_entity_move(pillar2,-22,-10,17);//-14,128,17);
+
+    gf3d_update_entity_bounding_box(pillar0,0,0);
+    gf3d_update_entity_bounding_box(pillar1,0,0);
+    gf3d_update_entity_bounding_box(pillar2,0,0);
+
+    bar0 = gf3d_entity_init("bar",true,0,1,false);
+    bar1 = gf3d_entity_init("bar",true,0,1,false);
+    bar2 = gf3d_entity_init("bar",true,0,1,false);
+    bar3 = gf3d_entity_init("bar",true,0,1,false);
+
+    gf3d_entity_move(bar0,-4,0,15);
+    gf3d_entity_move(bar1,-8,0,15);
+    gf3d_entity_move(bar2,-12,0,15);
+    gf3d_entity_move(bar3,-16,0,15);
+
+    gf3d_update_entity_bounding_box(bar0,0,0);
+    gf3d_update_entity_bounding_box(bar1,0,0);
+    gf3d_update_entity_bounding_box(bar2,0,0);
+    gf3d_update_entity_bounding_box(bar3,0,0);
+
+    gf3d_physics_set_time();
+    player = gf3d_player_init();
     Bool jump = false;
+    slog("starting main game loop");
     while(!done)
     {
-        //count = 0;
+
         SDL_PumpEvents();   // update SDL's internal event structures
 
-        keys = SDL_GetKeyboardState(NULL);
 
-        if(keys[SDL_SCANCODE_SPACE] && !jump && player->velocity.z == 0)
-        {
-          //gf3d_physics_add_velocity(player,vector3d(0,0,10));
-          player->velocity.z = 10;
-          jump = true;
-        }
-        if(!keys[SDL_SCANCODE_SPACE])
-        {
-          jump = false;
-        }
-        if(keys[SDL_SCANCODE_A])
-        {
-          player->velocity.x = 2;
-        }
-        else if(keys[SDL_SCANCODE_D])
-        {
-          player->velocity.x = -2;
-        }
-        else
-          player->velocity.x = 0;
-        if(keys[SDL_SCANCODE_W])
-        {
-          player->velocity.y = -2;
-        }
-        else if(keys[SDL_SCANCODE_S])
-        {
-          player->velocity.y = 2;
-        }
-        else
-          player->velocity.y = 0;
-        //g
+        //gf3d_entity_draw(player,0,bufferFrame,commandBuffer);
+
+
+        keys = SDL_GetKeyboardState(NULL);
         // get the keyboard state for this frame
         //update game things here
-      //  slog("here3");
-        //gf3d_vgraphics_rotate_camera(0.001);
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin();
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
-            commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-                //gf3d_entity_draw_all_entities(bufferFrame,commandBuffer);
-                /*
-                gf3d_model_draw(m_wall,bufferFrame,commandBuffer,modelMat,0);
-                gf3d_model_draw(m_floor,bufferFrame,commandBuffer,modelMat3,0);
-                gf3d_model_draw(testSquare,bufferFrame,commandBuffer,modelMat4,0);
-                gf3d_model_draw(mario,bufferFrame,commandBuffer,modelMat5,0);
-                */
-                gf3d_entity_draw(wall,0,bufferFrame,commandBuffer);
-                //gf3d_entity_draw(wall2,0,bufferFrame,commandBuffer);
-                gf3d_entity_draw(player,0,bufferFrame,commandBuffer);
-                gf3d_entity_draw(floor,0,bufferFrame,commandBuffer);
-                //gf3d_entity_draw(testSquare,0,bufferFrame,commandBuffer);
-                slog("-------------------------------------------------------");
-              //  gfc_matrix_slog(modelMat);
-              //  slog("^^^wall");
-              //  slog("wall position = [%f,%f,%f] height = %f depth = %f width = %f",wall->position.x,wall->position.y,wall->position.z,wall->height,wall->depth,wall->depth);
-              //  slog("\n");
-              /*
-                gfc_matrix_slog(modelMat3);
-                slog("^^^floor matrix ");
-                slog("floor position = [%f,%f,%f] height = %f depth = %f width = %f",floor->position.x,floor->position.y,floor->position.z,floor->height,floor->depth,floor->depth);
-                slog("\n");
-                gfc_matrix_slog(modelMat5);
-                slog("^^^mario");
-                slog("mario position = [%f,%f,%f] height = %f depth = %f width = %f",player->position.x,player->position.y,player->position.z,player->height,player->depth,player->depth);
-                slog("-------------------------------------------------------");
-*/
+        commandBuffer = gf3d_command_rendering_begin(bufferFrame);
+        gf3d_entity_draw(wall,0,bufferFrame,commandBuffer);
+        //gf3d_entity_draw(wall3,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(wall4,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(wall5,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(wall6,0,bufferFrame,commandBuffer);
+        //gf3d_entity_draw(wall2,0,bufferFrame,commandBuffer);
+        gf3d_player_draw(bufferFrame,commandBuffer);
+        gf3d_entity_draw(floor0,0,bufferFrame,commandBuffer);
+      //  gf3d_entity_draw(floor1,0,bufferFrame,commandBuffer);
+        //gf3d_entity_draw(floor2,0,bufferFrame,commandBuffer);
+      //  gf3d_entity_draw(floor3,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(goomba,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(koopa,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(toad,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(pillar0,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(pillar1,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(pillar2,0,bufferFrame,commandBuffer);
+
+        gf3d_entity_draw(bar0,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(bar1,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(bar2,0,bufferFrame,commandBuffer);
+        gf3d_entity_draw(bar3,0,bufferFrame,commandBuffer);
+
         gf3d_command_rendering_end(commandBuffer);
 
         gf3d_vgraphics_render_end(bufferFrame);
-        if(player->lastUpdate == 0){
-          player->lastUpdate = gf3d_physics_current_time();
-        }
-        gf3d_update_all_entities();
-
+        //if(player->lastUpdate == 0){
+        //  player->lastUpdate = gf3d_physics_current_time();
+        //}
+        //gf3d_update_all_entities();
+        //slog("player think");
+        gf3d_player_think();
+        //gf3d_player_update(player);
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());
         //count++;
