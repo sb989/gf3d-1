@@ -55,7 +55,7 @@ void gf3d_model_manager_init(Uint32 max_models,Uint32 chain_length,VkDevice devi
     gf3d_model.model_list = (Model *)gfc_allocate_array(sizeof(Model),max_models);
     gf3d_model.max_models = max_models;
     gf3d_model.device = device;
-    gf3d_model.pipe = gf3d_vgraphics_get_graphics_pipeline();
+    gf3d_model.pipe = gf3d_vgraphics_get_graphics_model_pipeline();
     
     slog("model manager initiliazed");
     atexit(gf3d_model_manager_close);
@@ -152,6 +152,7 @@ void gf3d_model_delete(Model *model)
         free(model->mesh);
     }
     gf3d_texture_free(model->texture);
+    memset(model,0,sizeof(Model));
 }
 
 void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat,Uint32 frame)

@@ -10,6 +10,7 @@
 #include "gf3d_model.h"
 #include "gf3d_camera.h"
 #include "gf3d_texture.h"
+#include "gf3d_sprite.h"
 
 int main(int argc,char *argv[])
 {
@@ -22,8 +23,9 @@ int main(int argc,char *argv[])
     VkCommandBuffer commandBuffer;
     Model *model = NULL;
     Matrix4 modelMat;
-    Model *model2 = NULL;
-    Matrix4 modelMat2;
+    Sprite *mouse = NULL;
+    int mousex,mousey;
+    Uint32 mouseFrame = 0;
     
     for (a = 1; a < argc;a++)
     {
@@ -44,47 +46,45 @@ int main(int argc,char *argv[])
         validate                //validation
     );
     
-    // main game loop
-    slog("gf3d main loop begin");
-//    model = gf3d_model_load("dino");
     model = gf3d_model_load_animated("dino_anim",5, 29);
 
     gfc_matrix_identity(modelMat);
-//    model2 = gf3d_model_load("dito");
-    gfc_matrix_identity(modelMat2);
-    gfc_matrix_make_translation(
-            modelMat2,
-            vector3d(10,0,0)
-        );
-        gfc_matrix_rotate(
-            modelMat,
-            modelMat,
-            M_PI/2,
-            vector3d(1,0,0));
+    gfc_matrix_rotate(
+        modelMat,
+        modelMat,
+        M_PI/2,
+        vector3d(1,0,0));
+    
+    mouse = gf3d_sprite_load("images/pointer.png",32,32, 16);
+    // main game loop
+    slog("gf3d main loop begin");
     while(!done)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
+        SDL_GetMouseState(&mousex,&mousey);
+        slog("mouse (%i,%i)",mousex,mousey);
         //update game things here
         
         gf3d_vgraphics_rotate_camera(0.001);
-/*        gfc_matrix_rotate(
-            modelMat,
-            modelMat,
-            0.002,
-            vector3d(1,0,0));
-            */
-
-        // configure render command for graphics command pool
-        // for each mesh, get a command and configure it from the pool
-        bufferFrame = gf3d_vgraphics_render_begin();
-        gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
-            commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-
-                gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat,(Uint32)frame);
                 frame = frame + 0.05;
                 if (frame >= 24)frame = 0;
-  //              gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
+                mouseFrame = (mouseFrame+1) %16;
+
+        // configure render command for graphics command pool
+        bufferFrame = gf3d_vgraphics_render_begin();
+        // for each mesh, get a command and configure it from the pool
+            gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_model_pipeline(),bufferFrame);
+            gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_overlay_pipeline(),bufferFrame);
+
+            commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_model_pipeline());
+                gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat,(Uint32)frame);
+            gf3d_command_rendering_end(commandBuffer);
+                
+        // 2D overlay rendering
+            commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_overlay_pipeline());
+
+                gf3d_sprite_draw(mouse,vector2d(mousex,mousey),mouseFrame, bufferFrame,commandBuffer);
                 
             gf3d_command_rendering_end(commandBuffer);
             
