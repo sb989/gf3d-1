@@ -20,7 +20,23 @@ int main(int argc,char *argv[])
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
+    Uint32 uiBufferFrame = 0;
+    VkCommandBuffer uiCommandBuffer;
+    VkImage uiImage;
+    VkImageBlit * uiImageBlit;
+    uiImageBlit = (VkImageBlit*) malloc(sizeof(VkImageBlit));// = {0};
+    VkImageSubresourceLayers uiImageSubrLayers= {0};
 
+    VkOffset3D start = {0};
+    start.x = 0;
+    start.y = 0;
+    start.z = 0;
+    VkOffset3D end = {0};
+    end.x = 144;
+    end.y = 192;
+    end.z = 0;
+    VkImage *swapImage;
+    //VkOffset3D (*offset)[2] = {start,end};
 
     Entity *floor0,*floor1,*floor2,*floor3;
     Entity *wall;
@@ -132,24 +148,55 @@ int main(int argc,char *argv[])
     player = gf3d_player_init();
     Bool jump = false;
     slog("starting main game loop");
+
+    uiImageSubrLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    uiImageSubrLayers.mipLevel = 0;
+    uiImageSubrLayers.baseArrayLayer = 0;
+    uiImageSubrLayers.layerCount = 1;
+
+    slog("made sub layers");
+    uiImageBlit->srcSubresource = uiImageSubrLayers;
+    slog("1");
+    uiImageBlit->srcOffsets[0] = start;
+    slog("1");
+    uiImageBlit->srcOffsets[1] = end; //offset;
+    slog("1");
+    uiImageBlit->dstSubresource = uiImageSubrLayers;
+    slog("1");
+    uiImageBlit->dstOffsets[0] = start;
+    slog("1");
+    uiImageBlit->dstOffsets[1] = end; //offset;
+    slog("made image blit");
+    TextLine assetname;
+    snprintf(assetname,GFCLINELEN,"images/%s.png","toad");
+    uiImage = gf3d_texture_load(assetname)->textureImage;
+
+
     while(!done)
     {
 
         SDL_PumpEvents();   // update SDL's internal event structures
-
+        swapImage = gf3d_swapchain_get_images();
 
         //gf3d_entity_draw(player,0,bufferFrame,commandBuffer);
 
-
+        //slog("numsber of swapimages is %d",sizeof(*gf3d_swapchain_get_images()));
+        slog("number of swapimg is %d", gf3d_swapchain_get_swap_image_count());
         keys = SDL_GetKeyboardState(NULL);
         // get the keyboard state for this frame
         //update game things here
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
-        bufferFrame = gf3d_vgraphics_render_begin();
+        bufferFrame = gf3d_vgraphics_render_begin(); //gets image from swap chain exectues command buffer with that image returns image to swap chain
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
-        commandBuffer = gf3d_command_rendering_begin(bufferFrame);
+
+        //uiBufferFrame = gf3d_vgraphics_render_begin();
+        //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_ui_pipeline(),bufferFrame);
+        slog("frame number is %d",bufferFrame);
+        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_pipeline());
+        //uiCommandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_ui_pipeline());
+
         gf3d_entity_draw(wall,0,bufferFrame,commandBuffer);
         //gf3d_entity_draw(wall3,0,bufferFrame,commandBuffer);
         gf3d_entity_draw(wall4,0,bufferFrame,commandBuffer);
@@ -172,10 +219,23 @@ int main(int argc,char *argv[])
         gf3d_entity_draw(bar1,0,bufferFrame,commandBuffer);
         gf3d_entity_draw(bar2,0,bufferFrame,commandBuffer);
         gf3d_entity_draw(bar3,0,bufferFrame,commandBuffer);
+        slog("hello");
 
-        gf3d_command_rendering_end(commandBuffer);
 
+        vkCmdBlitImage(commandBuffer,uiImage,1,uiImage,1,1,uiImageBlit,VK_FILTER_LINEAR);
+        //vkCreateImageView(gf3d_vgraphics_get_default_logical_device(),);
+        gf3d_vgraphics_create_image_view(uiImage,VK_FORMAT_B8G8R8A8_UNORM);
+
+
+        slog("hi");
+        gf3d_command_rendering_end_graphics(commandBuffer);
+        //gf3d_command_rendering_end_ui(uiCommandBuffer);
         gf3d_vgraphics_render_end(bufferFrame);
+        //bufferFrame = gf3d_vgraphics_render_begin();
+
+
+        //j
+        //gf3d_vgraphics_render_end(uiBufferFrame);
         //if(player->lastUpdate == 0){
         //  player->lastUpdate = gf3d_physics_current_time();
         //}
