@@ -61,8 +61,9 @@ typedef struct
     VkSemaphore                 renderFinishedSemaphore;
 
     Pipeline                   *pipe;
-
+    //Pipeline                   *ui_pipe;
     Command                 *   graphicsCommandPool;
+    //Command                 *   uiCommandPool;
     UniformBufferObject         ubo;
 }vGraphics;
 
@@ -101,6 +102,7 @@ void gf3d_vgraphics_init(
 )
 {
     VkDevice device;
+    //VkImage ui;
 
     gfc_matrix_identity(gf3d_vgraphics.ubo.model);
     gfc_matrix_identity(gf3d_vgraphics.ubo.view);
@@ -140,17 +142,27 @@ void gf3d_vgraphics_init(
     gf3d_texture_init(1024);
 
     gf3d_pipeline_init(4);// how many different rendering pipelines we need
+
     gf3d_vgraphics.pipe = gf3d_pipeline_basic_model_create(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent(),1024);
+    //gf3d_vgraphics.ui_pipe = gf3d_pipeline_basic_model_create(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent(),1024);
+
     gf3d_model_manager_init(1024,gf3d_swapchain_get_swap_image_count(),device);
 
     gf3d_command_system_init(8,device);
 
     gf3d_vgraphics.graphicsCommandPool = gf3d_command_graphics_pool_setup(gf3d_swapchain_get_swap_image_count(),gf3d_vgraphics.pipe);
+    //gf3d_vgraphics.uiCommandPool = gf3d_command_graphics_pool_setup(gf3d_swapchain_get_swap_image_count(),gf3d_vgraphics.ui_pipe);
+
 
     gf3d_swapchain_create_depth_image();
     gf3d_swapchain_setup_frame_buffers(gf3d_vgraphics.pipe);
-
+    //gf3d_swapchain_setup_frame_buffers(gf3d_vgraphics.ui_pipe);
     gf3d_vgraphics_semaphores_create();
+
+
+      //gf3d_vgraphics_create_image_view(ui, VK_FORMAT_B8G8R8A8_UNORM);
+
+
 
 }
 
@@ -461,6 +473,16 @@ void gf3d_vgraphics_render_end(Uint32 imageIndex)
     presentInfo.pResults = NULL; // Optional
 
     vkQueuePresentKHR(gf3d_vqueues_get_present_queue(), &presentInfo);
+
+    submitInfo.commandBufferCount = gf3d_command_pool_get_used_buffer_count(gf3d_vgraphics.graphicsCommandPool);
+    submitInfo.pCommandBuffers = gf3d_command_pool_get_used_buffers(gf3d_vgraphics.graphicsCommandPool);
+
+    if (vkQueueSubmit(gf3d_vqueues_get_graphics_queue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+    {
+        slog("failed to submit draw command buffer!");
+    }
+
+    vkQueuePresentKHR(gf3d_vqueues_get_present_queue(), &presentInfo);
 }
 
 /**
@@ -676,11 +698,20 @@ Pipeline *gf3d_vgraphics_get_graphics_pipeline()
     return gf3d_vgraphics.pipe;
 }
 
+/*Pipeline *gf3d_vgraphics_get_ui_pipeline()
+{
+  return gf3d_vgraphics.ui_pipe;
+}*/
 Command *gf3d_vgraphics_get_graphics_command_pool()
 {
     return gf3d_vgraphics.graphicsCommandPool;
 }
-
+/*
+Command *gf3d_vgraphics_get_ui_command_pool()
+{
+  return gf3d_vgraphics.uiCommandPool;
+}
+*/
 UniformBufferObject gf3d_vgraphics_get_uniform_buffer_object()
 {
     return gf3d_vgraphics.ubo;
@@ -709,5 +740,6 @@ VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format)
 
     return imageView;
 }
+
 
 /*eol@eof*/

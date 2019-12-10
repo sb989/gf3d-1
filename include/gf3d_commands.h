@@ -43,12 +43,11 @@ VkCommandBuffer * gf3d_command_pool_get_used_buffers(Command *com);
  * @param index the rendering frame to use
  * @return the command buffer used for this drawing pass.
  */
-VkCommandBuffer gf3d_command_rendering_begin(Uint32 index);
+VkCommandBuffer gf3d_command_rendering_begin(Uint32 index,Pipeline *pipe);
 
-void gf3d_command_rendering_end(VkCommandBuffer commandBuffer);
-
+void gf3d_command_rendering_end_graphics(VkCommandBuffer commandBuffer);
+//void gf3d_command_rendering_end_ui(VkCommandBuffer commandBuffer);
 void gf3d_command_configure_render_pass_end(VkCommandBuffer commandBuffer);
 
 
 #endif
-

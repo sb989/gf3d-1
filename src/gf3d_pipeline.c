@@ -435,6 +435,8 @@ void gf3d_pipeline_reset_frame(Pipeline *pipe,Uint32 frame)
         slog("frame %i outside the range of supported descriptor Pools (%i)",frame,gf3d_pipeline.chainLength);
         return;
     }
+    slog("%d",sizeof(*pipe->descriptorCursor));
+    slog("%d",frame);
     pipe->descriptorCursor[frame] = 0;
 }
 

@@ -40,13 +40,14 @@ void gf3d_swapchain_create_depth_image();
 int gf3d_swapchain_get_presentation_mode();
 VkExtent2D gf3d_swapchain_configure_extent(Uint32 width,Uint32 height);
 uint32_t gf3d_swapchain_find_Memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+VkImage *gf3d_swapchain_get_images();
 
 void gf3d_swapchain_init(VkPhysicalDevice device,VkDevice logicalDevice,VkSurfaceKHR surface,Uint32 width,Uint32 height)
 {
     int i;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &gf3d_swapchain.capabilities);
-    
+
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &gf3d_swapchain.formatCount, NULL);
 
     slog("device supports %i surface formats",gf3d_swapchain.formatCount);
@@ -61,7 +62,7 @@ void gf3d_swapchain_init(VkPhysicalDevice device,VkDevice logicalDevice,VkSurfac
             slog("colorspace: %i",gf3d_swapchain.formats[i].colorSpace);
         }
     }
-    
+
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &gf3d_swapchain.presentModeCount, NULL);
 
     slog("device supports %i presentation modes",gf3d_swapchain.presentModeCount);
@@ -74,19 +75,19 @@ void gf3d_swapchain_init(VkPhysicalDevice device,VkDevice logicalDevice,VkSurfac
             slog("presentation mode: %i is %i",i,gf3d_swapchain.presentModes[i]);
         }
     }
-    
+
     gf3d_swapchain.chosenFormat = gf3d_swapchain_choose_format();
     slog("chosing surface format %i",gf3d_swapchain.chosenFormat);
-    
+
     gf3d_swapchain.chosenPresentMode = gf3d_swapchain_get_presentation_mode();
     slog("chosing presentation mode %i",gf3d_swapchain.chosenPresentMode);
-    
+
     gf3d_swapchain.extent = gf3d_swapchain_configure_extent(width,height);
     slog("chosing swap chain extent of (%i,%i)",gf3d_swapchain.extent.width,gf3d_swapchain.extent.height);
-    
+
     gf3d_swapchain_create(logicalDevice,surface);
     gf3d_swapchain.device = logicalDevice;
-    
+
     atexit(gf3d_swapchain_close);
 }
 
@@ -94,7 +95,7 @@ void gf3d_swapchain_create_frame_buffer(VkFramebuffer *buffer,VkImageView *image
 {
     VkFramebufferCreateInfo framebufferInfo = {0};
     VkImageView imageViews[2];
-    
+
     imageViews[0] = *imageView;
     imageViews[1] = gf3d_swapchain.depthImageView;
 
@@ -140,13 +141,13 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
     Sint32 transferFamily;
     VkSwapchainCreateInfoKHR createInfo = {0};
     Uint32 queueFamilyIndices[3];
-    
+
     slog("minimum images needed for swap chain: %i",gf3d_swapchain.capabilities.minImageCount);
     slog("Maximum images needed for swap chain: %i",gf3d_swapchain.capabilities.maxImageCount);
     gf3d_swapchain.swapChainCount = gf3d_swapchain.capabilities.minImageCount + 1;
     if (gf3d_swapchain.capabilities.maxImageCount)gf3d_swapchain.swapChainCount = MIN(gf3d_swapchain.swapChainCount,gf3d_swapchain.capabilities.maxImageCount);
     slog("using %i images for the swap chain",gf3d_swapchain.swapChainCount);
-    
+
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
     createInfo.minImageCount = gf3d_swapchain.swapChainCount;
@@ -155,14 +156,14 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
     createInfo.imageExtent = gf3d_swapchain.extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    
+
     graphicsFamily = gf3d_vqueues_get_graphics_queue_family();
     presentFamily = gf3d_vqueues_get_present_queue_family();
     transferFamily = gf3d_vqueues_get_transfer_queue_family();
     queueFamilyIndices[0] = graphicsFamily;
     queueFamilyIndices[1] = presentFamily;
     queueFamilyIndices[2] = transferFamily;
-    
+
     if (graphicsFamily != presentFamily)
     {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -178,9 +179,9 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
 
     createInfo.presentMode = gf3d_swapchain.presentModes[gf3d_swapchain.chosenPresentMode];
     createInfo.clipped = VK_TRUE;
-    
+
     createInfo.oldSwapchain = VK_NULL_HANDLE;
-    
+
     if (vkCreateSwapchainKHR(device, &createInfo, NULL, &gf3d_swapchain.swapChain) != VK_SUCCESS)
     {
         slog("failed to create swap chain!");
@@ -188,7 +189,7 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
         return;
     }
     slog("created a swap chain with length %i",gf3d_swapchain.swapChainCount);
-    
+
     vkGetSwapchainImagesKHR(device, gf3d_swapchain.swapChain, &gf3d_swapchain.swapImageCount, NULL);
     if (gf3d_swapchain.swapImageCount == 0)
     {
@@ -199,7 +200,7 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
     gf3d_swapchain.swapImages = (VkImage *)gfc_allocate_array(sizeof(VkImage),gf3d_swapchain.swapImageCount);
     vkGetSwapchainImagesKHR(device, gf3d_swapchain.swapChain, &gf3d_swapchain.swapImageCount,gf3d_swapchain.swapImages );
     slog("created swap chain with %i images",gf3d_swapchain.swapImageCount);
-    
+
     gf3d_swapchain.imageViews = (VkImageView *)gfc_allocate_array(sizeof(VkImageView),gf3d_swapchain.swapImageCount);
     for (i = 0 ; i < gf3d_swapchain.swapImageCount; i++)
     {
@@ -214,7 +215,7 @@ VkExtent2D gf3d_swapchain_configure_extent(Uint32 width,Uint32 height)
     slog("Requested resolution: (%i,%i)",width,height);
     slog("Minimum resolution: (%i,%i)",gf3d_swapchain.capabilities.minImageExtent.width,gf3d_swapchain.capabilities.minImageExtent.height);
     slog("Maximum resolution: (%i,%i)",gf3d_swapchain.capabilities.maxImageExtent.width,gf3d_swapchain.capabilities.maxImageExtent.height);
-    
+
     actualExtent.width = MAX(gf3d_swapchain.capabilities.minImageExtent.width,MIN(width,gf3d_swapchain.capabilities.maxImageExtent.width));
     actualExtent.height = MAX(gf3d_swapchain.capabilities.minImageExtent.height,MIN(height,gf3d_swapchain.capabilities.maxImageExtent.height));
     return actualExtent;
@@ -257,7 +258,7 @@ void gf3d_swapchain_close()
 {
     int i;
     slog("cleaning up swapchain");
-    
+
     if (gf3d_swapchain.depthImageView != VK_NULL_HANDLE)
     {
         vkDestroyImageView(gf3d_swapchain.device, gf3d_swapchain.depthImageView, NULL);
@@ -339,6 +340,11 @@ VkSwapchainKHR gf3d_swapchain_get()
     return gf3d_swapchain.swapChain;
 }
 
+VkImage *gf3d_swapchain_get_images()
+{
+  return gf3d_swapchain.swapImages;
+}
+
 VkFramebuffer gf3d_swapchain_get_frame_buffer_by_index(Uint32 index)
 {
     if (index >= gf3d_swapchain.framebufferCount)
@@ -353,7 +359,7 @@ VkImageView gf3d_swapchain_create_image_view(VkImage image, VkFormat format, VkI
 {
     VkImageViewCreateInfo viewInfo = {0};
     VkImageView imageView;
-    
+
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     viewInfo.image = image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -372,12 +378,12 @@ VkImageView gf3d_swapchain_create_image_view(VkImage image, VkFormat format, VkI
 
     return imageView;
 }
-    
+
 Uint8 gf3d_swapchain_has_stencil_component(VkFormat format)
 {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
-    
+
 void gf3d_swapchain_transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkImageMemoryBarrier barrier = {0};
@@ -385,14 +391,14 @@ void gf3d_swapchain_transition_image_layout(VkImage image, VkFormat format, VkIm
     VkCommandBuffer commandBuffer;
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
-    
-    
+
+
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.oldLayout = oldLayout;
     barrier.newLayout = newLayout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    
+
     barrier.image = image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
@@ -442,7 +448,7 @@ void gf3d_swapchain_transition_image_layout(VkImage image, VkFormat format, VkIm
     {
         slog("unsupported layout transition!");
     }
-    
+
     commandPool = gf3d_vgraphics_get_graphics_command_pool();
     commandBuffer = gf3d_command_begin_single_time(commandPool);
 
@@ -453,7 +459,7 @@ void gf3d_swapchain_transition_image_layout(VkImage image, VkFormat format, VkIm
         0, NULL,
         0, NULL,
         1, &barrier);
-    
+
     gf3d_command_end_single_time(commandPool, commandBuffer);
 }
 
@@ -468,7 +474,7 @@ uint32_t gf3d_swapchain_find_Memory_type(uint32_t typeFilter, VkMemoryPropertyFl
 {
     uint32_t i;
     VkPhysicalDeviceMemoryProperties memProperties;
-    
+
     vkGetPhysicalDeviceMemoryProperties(gf3d_vgraphics_get_default_physical_device(), &memProperties);
 
     for (i= 0; i < memProperties.memoryTypeCount; i++)

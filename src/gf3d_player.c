@@ -293,7 +293,7 @@ void gf3d_player_update(Entity * e)
   //gf3d_player_update_frame();
  //slog("%f",gf3d_player_manager.lastFrameUpdate);
  //slog("%f",gf3d_physics_current_time()/(CLOCKS_PER_SEC));
- if(gf3d_player_manager.lastFrameUpdate == 0 || ((gf3d_physics_current_time()/CLOCKS_PER_SEC-gf3d_player_manager.lastFrameUpdate) > .01))
+ if(gf3d_player_manager.lastFrameUpdate == 0 || ((gf3d_physics_current_time()/CLOCKS_PER_SEC-gf3d_player_manager.lastFrameUpdate) > .02))
   {
     gf3d_player_update_frame();
     gf3d_player_manager.lastFrameUpdate = (gf3d_physics_current_time()/CLOCKS_PER_SEC);
@@ -562,7 +562,7 @@ void gf3d_player_update_frame()
       if(gf3d_player_manager.currentFrame == gf3d_player_manager.switch_right_frame)
       {
         //slog("done transitioning from left to right");
-        gf3d_player_manager.currentFrame == gf3d_player_manager.walk_right_start_frame;
+        gf3d_player_manager.currentFrame = gf3d_player_manager.walk_right_start_frame;
         gf3d_player_manager.switchDir = 0;
         //gf3d_player_manager.prevDir = gf3d_player_manager.dir;
         return;
@@ -581,7 +581,7 @@ void gf3d_player_update_frame()
       if(gf3d_player_manager.currentFrame == gf3d_player_manager.switch_left_frame)
       {
         //slog("done transitioning from right to left");
-        gf3d_player_manager.currentFrame == gf3d_player_manager.walk_left_start_frame;
+        gf3d_player_manager.currentFrame = gf3d_player_manager.walk_left_start_frame;
         gf3d_player_manager.switchDir = 0;
         //gf3d_player_manager.prevDir = gf3d_player_manager.dir;
         return;
@@ -637,7 +637,7 @@ void gf3d_player_update_frame()
       if(gf3d_player_manager.currentFrame == gf3d_player_manager.switch_right_frame)
       {
         //slog("wrong one 1 end");
-        gf3d_player_manager.currentFrame == gf3d_player_manager.walk_right_start_frame;
+        gf3d_player_manager.currentFrame =gf3d_player_manager.walk_right_start_frame;
         gf3d_player_manager.switchDir = 0;
         //gf3d_player_manager.prevDir = gf3d_player_manager.dir;
         return;
@@ -656,7 +656,7 @@ void gf3d_player_update_frame()
       if(gf3d_player_manager.currentFrame == gf3d_player_manager.switch_left_frame)
       {
         //slog("wrong one 2 end");
-        gf3d_player_manager.currentFrame == gf3d_player_manager.walk_left_start_frame;
+        gf3d_player_manager.currentFrame = gf3d_player_manager.walk_left_start_frame;
         gf3d_player_manager.switchDir = 0;
         //gf3d_player_manager.prevDir = gf3d_player_manager.dir;
         return;
