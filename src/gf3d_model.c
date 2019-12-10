@@ -56,8 +56,10 @@ void gf3d_model_manager_init(Uint32 max_models,Uint32 chain_length,VkDevice devi
     gf3d_model.model_list = (Model *)gfc_allocate_array(sizeof(Model),max_models);
     gf3d_model.max_models = max_models;
     gf3d_model.device = device;
-    gf3d_model.pipe = gf3d_vgraphics_get_graphics_pipeline();
-    //gf3d_model.ui_pipe = gf3d_vgraphics_get_ui_pipeline(); //for testing ui pipeline (remove after sprite system is created)
+
+    gf3d_model.pipe = gf3d_vgraphics_get_graphics_model_pipeline();
+
+
     slog("model manager initiliazed");
     atexit(gf3d_model_manager_close);
 }
@@ -103,13 +105,14 @@ Model * gf3d_model_load_animated(char * filename,Uint32 startFrame, Uint32 endFr
     for (i = 0; i < count; i++)
     {
         snprintf(assetname,GFCLINELEN,"models/%s_%06i.obj",filename,startFrame + i);
+
         slog("%d",i);
+
         model->mesh[i] = gf3d_mesh_load(assetname);
     }
 
     snprintf(assetname,GFCLINELEN,"images/%s.png",filename);
     model->texture = gf3d_texture_load(assetname);
-
     return model;
 }
 
@@ -122,7 +125,9 @@ Model * gf3d_model_load(char * filename)
     snprintf(assetname,GFCLINELEN,"models/%s.obj",filename);
     model->mesh = (Mesh**)gfc_allocate_array(sizeof(Mesh*),1);
     model->mesh[0] = gf3d_mesh_load(assetname);
+
     model->frameCount = 1;
+
     snprintf(assetname,GFCLINELEN,"images/%s.png",filename);
     model->texture = gf3d_texture_load(assetname);
 
@@ -154,6 +159,7 @@ void gf3d_model_delete(Model *model)
         free(model->mesh);
     }
     gf3d_texture_free(model->texture);
+    memset(model,0,sizeof(Model));
 }
 
 void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat,Uint32 frame)

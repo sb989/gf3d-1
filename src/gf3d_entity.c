@@ -7,6 +7,7 @@
 #include "gf3d_model.h"
 #include "gf3d_collision.h"
 
+
 typedef struct
 {
     Entity *entity_list;
@@ -32,8 +33,10 @@ void gf3d_entity_manager_init(Uint32 entity_max)
         slog("failed to allocate entity list");
         return;
     }
+
     gf3d_entity_manager.entity_max = entity_max;
     slog("allocated entity list of size %u",sizeof(gf3d_entity_manager.entity_list));
+
     atexit(gf3d_entity_manager_close);
 }
 
@@ -42,7 +45,9 @@ Entity *gf3d_entity_new()
     int i;
     for (i = 0; i < gf3d_entity_manager.entity_max; i++)
     {
+
         slog("the _inuse flage for this entity is %u",gf3d_entity_manager.entity_list[i]._inuse);
+
         if (gf3d_entity_manager.entity_list[i]._inuse)continue;
         //. found a free entity
         memset(&gf3d_entity_manager.entity_list[i],0,sizeof(Entity));
@@ -61,13 +66,16 @@ void gf3d_entity_free(Entity *self)
         return;
     }
     self->_inuse = 0;
+
     free(self->entityMat);
+
     gf3d_model_free(self->model);
     if (self->data != NULL)
     {
         slog("warning: data not freed at entity free!");
     }
 }
+
 
 Entity * gf3d_entity_init(char * model, Bool isEnvironment,int startFrame,int endFrame, Bool isEnemy)
 {
@@ -321,5 +329,6 @@ void gf3d_entity_setup_cube_plane(Entity * e)
   e->cp.yz2.planeVert[3] = vector3d(x2,y2,z1);
 
 }
+
 
 /*eol@eof*/

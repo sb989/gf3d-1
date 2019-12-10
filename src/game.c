@@ -12,20 +12,20 @@
 #include "gf3d_texture.h"
 #include "gf3d_create_obj.h"
 
+#include "gf3d_sprite.h"
+
+
 int main(int argc,char *argv[])
 {
     int done = 0;
     int a;
     Uint8 validate = 1;
+    float frame = 0;
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
-    Uint32 uiBufferFrame = 0;
-    VkCommandBuffer uiCommandBuffer;
-    VkImage uiImage;
-    VkImageBlit * uiImageBlit;
-    uiImageBlit = (VkImageBlit*) malloc(sizeof(VkImageBlit));// = {0};
-    VkImageSubresourceLayers uiImageSubrLayers= {0};
+
+
 
     VkOffset3D start = {0};
     start.x = 0;
@@ -45,6 +45,11 @@ int main(int argc,char *argv[])
     Entity *bar0,*bar1,*bar2,*bar3;
     Entity *player;
     Entity * toad, *goomba, *koopa;
+
+    Sprite *mouse = NULL;
+    int mousex,mousey;
+    Uint32 mouseFrame = 0;
+
     for (a = 1; a < argc;a++)
     {
         if (strcmp(argv[a],"-disable_validate") == 0)
@@ -63,6 +68,7 @@ int main(int argc,char *argv[])
         0,                      //fullscreen
         validate                //validation
     );
+
 
     gf3d_entity_manager_init(100);
 
@@ -149,39 +155,21 @@ int main(int argc,char *argv[])
     Bool jump = false;
     slog("starting main game loop");
 
-    uiImageSubrLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    uiImageSubrLayers.mipLevel = 0;
-    uiImageSubrLayers.baseArrayLayer = 0;
-    uiImageSubrLayers.layerCount = 1;
 
-    slog("made sub layers");
-    uiImageBlit->srcSubresource = uiImageSubrLayers;
-    slog("1");
-    uiImageBlit->srcOffsets[0] = start;
-    slog("1");
-    uiImageBlit->srcOffsets[1] = end; //offset;
-    slog("1");
-    uiImageBlit->dstSubresource = uiImageSubrLayers;
-    slog("1");
-    uiImageBlit->dstOffsets[0] = start;
-    slog("1");
-    uiImageBlit->dstOffsets[1] = end; //offset;
-    slog("made image blit");
-    TextLine assetname;
-    snprintf(assetname,GFCLINELEN,"images/%s.png","toad");
-    uiImage = gf3d_texture_load(assetname)->textureImage;
 
+    mouse = gf3d_sprite_load("images/pointer.png",32,32, 16);
+    // main game loop
+    slog("gf3d main loop begin");
 
     while(!done)
     {
 
         SDL_PumpEvents();   // update SDL's internal event structures
-        swapImage = gf3d_swapchain_get_images();
 
         //gf3d_entity_draw(player,0,bufferFrame,commandBuffer);
 
         //slog("numsber of swapimages is %d",sizeof(*gf3d_swapchain_get_images()));
-        slog("number of swapimg is %d", gf3d_swapchain_get_swap_image_count());
+
         keys = SDL_GetKeyboardState(NULL);
         // get the keyboard state for this frame
         //update game things here
@@ -190,11 +178,21 @@ int main(int argc,char *argv[])
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin(); //gets image from swap chain exectues command buffer with that image returns image to swap chain
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
+        SDL_GetMouseState(&mousex,&mousey);
+        slog("mouse (%i,%i)",mousex,mousey);
+        //update game things here
 
+        gf3d_vgraphics_rotate_camera(0.001);
+                frame = frame + 0.05;
+                if (frame >= 24)frame = 0;
+                mouseFrame = (mouseFrame+1) %16;
+
+
+        gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_overlay_pipeline(),bufferFrame);
         //uiBufferFrame = gf3d_vgraphics_render_begin();
         //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_ui_pipeline(),bufferFrame);
         slog("frame number is %d",bufferFrame);
-        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_pipeline());
+        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_model_pipeline());
         //uiCommandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_ui_pipeline());
 
         gf3d_entity_draw(wall,0,bufferFrame,commandBuffer);
@@ -222,14 +220,22 @@ int main(int argc,char *argv[])
         slog("hello");
 
 
-        vkCmdBlitImage(commandBuffer,uiImage,1,uiImage,1,1,uiImageBlit,VK_FILTER_LINEAR);
-        //vkCreateImageView(gf3d_vgraphics_get_default_logical_device(),);
-        gf3d_vgraphics_create_image_view(uiImage,VK_FORMAT_B8G8R8A8_UNORM);
 
 
         slog("hi");
-        gf3d_command_rendering_end_graphics(commandBuffer);
+        //gf3d_command_rendering_end_graphics(commandBuffer);
         //gf3d_command_rendering_end_ui(uiCommandBuffer);
+
+        gf3d_command_rendering_end(commandBuffer);
+
+        // 2D overlay rendering
+        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_overlay_pipeline());
+
+        gf3d_sprite_draw(mouse,vector2d(mousex,mousey),mouseFrame, bufferFrame,commandBuffer);
+
+        gf3d_command_rendering_end(commandBuffer);
+
+
         gf3d_vgraphics_render_end(bufferFrame);
         //bufferFrame = gf3d_vgraphics_render_begin();
 

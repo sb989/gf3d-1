@@ -47,8 +47,9 @@ void gf3d_vgraphics_move_camera(Vector3D distance);
 VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index);
 UniformBufferObject gf3d_vgraphics_get_uniform_buffer_object();
 
-Pipeline *gf3d_vgraphics_get_graphics_pipeline();
-//Pipeline *gf3d_vgraphics_get_ui_pipeline();
+Pipeline *gf3d_vgraphics_get_graphics_model_pipeline();
+Pipeline *gf3d_vgraphics_get_graphics_overlay_pipeline();
+
 Command *gf3d_vgraphics_get_graphics_command_pool();
 
 VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format);

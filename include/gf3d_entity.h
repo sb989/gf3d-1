@@ -10,6 +10,7 @@ typedef enum
     ES_Dead = 2
 }EntityState;
 
+
 typedef struct
 {
   float           boundingX1;
@@ -35,11 +36,14 @@ typedef struct
   Plane yz2;
 }CubePlane;
 
+
 typedef struct Entity_S
 {
     Uint8           _inuse;         /**<flag to keep track if this isntance is in use and should not be reassigned*/
     Model          *model;          /**<the 3d model for this entity*/
+
     Model          *secondaryModel;  /**<secondary 3d model for entity if needed*/
+
     Vector3D        position;       /**<position of the entity in 3d space*/
     Vector3D        velocity;       /**<velocity of the entity in 3d space*/
     Vector3D        acceleration;   /**<acceleration of the entity in 3d space*/
@@ -54,6 +58,7 @@ typedef struct Entity_S
     float           armor;
     float           experience;
     float           level;
+
     double           lastUpdate;
     float           otherStuff;
     BoundingBox     entityBoundingBoxes;
@@ -70,6 +75,9 @@ typedef struct Entity_S
     int             numAnimations;
     Bool            isEnemy;
     void *data;                     /**<additional entity specific data*/
+
+
+    float           otherStuff;
 
 }Entity;
 
@@ -90,6 +98,7 @@ Entity *gf3d_entity_new();
  * @param self the entity to free
  */
 void    gf3d_entity_free(Entity *self);
+
 void gf3d_update_all_entities();
 void update_entity(Entity *e,int num,int frame);
 void gf3d_entity_sync_position(Entity *e);
@@ -103,4 +112,5 @@ void gf3d_rotate_entity_bounding_box(Entity *e,int num,int frame,float angle);
 void gf3d_entity_rotate_point(Vector3D * pivot, Vector3D * rotate,float angle);
 
 void gf3d_entity_setup_cube_plane(Entity * e);
+
 #endif
