@@ -11,7 +11,7 @@
 #include "gf3d_camera.h"
 #include "gf3d_texture.h"
 #include "gf3d_create_obj.h"
-
+#include "simple_json.h"
 #include "gf3d_sprite.h"
 
 
@@ -20,36 +20,24 @@ int main(int argc,char *argv[])
     int done = 0;
     int a;
     Uint8 validate = 1;
-    float frame = 0;
+  //float frame = 0;
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
+
     VkCommandBuffer commandBuffer;
 
 
 
-    VkOffset3D start = {0};
-    start.x = 0;
-    start.y = 0;
-    start.z = 0;
-    VkOffset3D end = {0};
-    end.x = 144;
-    end.y = 192;
-    end.z = 0;
-    VkImage *swapImage;
     //VkOffset3D (*offset)[2] = {start,end};
 
-    Entity *floor0,*floor1,*floor2,*floor3;
-    Entity *wall;
-    Entity *wall2,*wall3,*wall4,*wall5,*wall6;
-    Entity *pillar0,*pillar1,*pillar2;
-    Entity *bar0,*bar1,*bar2,*bar3;
+    Entity *floor0;
     Entity *player;
-    Entity * toad, *goomba, *koopa;
 
-    Sprite *mouse = NULL;
+    Entity *sky;
+
     int mousex,mousey;
     Uint32 mouseFrame = 0;
-
+    SJson *config;
     for (a = 1; a < argc;a++)
     {
         if (strcmp(argv[a],"-disable_validate") == 0)
@@ -64,21 +52,24 @@ int main(int argc,char *argv[])
         "gf3d",                 //program name
         1200,                   //screen width
         700,                    //screen height
-        vector4d(0.51,0.75,1,1),//background color
+        vector4d(1,1,1,1),//background color
         0,                      //fullscreen
         validate                //validation
     );
 
-
+    //config = sj_load("config/main_menu.json");
+  //  sj_echo(config);
     gf3d_entity_manager_init(100);
-
+  //  SJson * temp = sj_object_new();
+  //  temp = sj_object_get_value(config,"sprites");
+  //  sj_echo(temp);
     // main game loop
     slog("gf3d main loop begin");
 
 
 
 
-    gf3d_vgraphics_move_camera(vector3d(0,0,-50));
+    gf3d_vgraphics_move_camera(vector3d(0,0,-30));
     gf3d_vgraphics_move_camera(vector3d(0,-20,0));
 
 
@@ -92,75 +83,31 @@ int main(int argc,char *argv[])
     //gf3d_update_entity_bounding_box(floor1,0,0);
     //gf3d_update_entity_bounding_box(floor2,0,0);
     //gf3d_update_entity_bounding_box(floor3,0,0);
-    koopa = gf3d_entity_init("koopa",false,0,1,true);
-    goomba = gf3d_entity_init("goomba",false,0,1,true);
-    toad = gf3d_entity_init("toad",false,0,1,true);
-    gf3d_entity_move(koopa,-30,0,8);
-    gf3d_entity_move(goomba,-35,5,8);
-    gf3d_entity_move(toad,-40,7,8);
-    gf3d_update_entity_bounding_box(toad,0,0);
-    gf3d_update_entity_bounding_box(goomba,0,0);
-    gf3d_update_entity_bounding_box(koopa,0,0);
 
-    wall = gf3d_entity_init("wall",true,0,1,false);
-    wall2 = gf3d_entity_init("wall2",true,0,1,false);
-  //  wall3 = gf3d_entity_init("wall3",true,0,1);
-    wall4 = gf3d_entity_init("wall4",true,0,1,false);
-    wall5 = gf3d_entity_init("wall5",true,0,1,false);
-    wall6 = gf3d_entity_init("wall6",true,0,1,false);
-    gf3d_entity_move(wall,0,-(wall->height)/2,(wall->height)/2);
-    gf3d_entity_move(wall2,0,(wall->height)/2,(wall->height)/2);
-    slog("wall height = %f",wall->height);
-  //  gf3d_entity_move(wall3,-20,185,19);
-    gf3d_entity_move(wall4,35,-5,19);
-    gf3d_entity_move(wall5,50,-5,25);
-    gf3d_entity_move(wall6,65,-5,19);
+  //  sky = gf3d_entity_init("sky",true,0,1,false);
 
-    gf3d_update_entity_bounding_box(wall,0,0);
-    gf3d_update_entity_bounding_box(wall2,0,0);
-  //  gf3d_update_entity_bounding_box(wall3,0,0);
-    gf3d_update_entity_bounding_box(wall4,0,0);
-    gf3d_update_entity_bounding_box(wall5,0,0);
-    gf3d_update_entity_bounding_box(wall6,0,0);
+  //  gf3d_entity_move(sky,0,-(sky->height)/3,0);
 
-    pillar0 = gf3d_entity_init("pillar0",true,0,1,false);
-    pillar1 = gf3d_entity_init("pillar1",true,0,1,false);
-    pillar2 = gf3d_entity_init("pillar2",true,0,1,false);
-
-    gf3d_entity_move(pillar0,0,-10,17);//-14,105,17);
-    gf3d_entity_move(pillar1,-10,-10,37);//-15,118,37);
-    gf3d_entity_move(pillar2,-22,-10,17);//-14,128,17);
-
-    gf3d_update_entity_bounding_box(pillar0,0,0);
-    gf3d_update_entity_bounding_box(pillar1,0,0);
-    gf3d_update_entity_bounding_box(pillar2,0,0);
-
-    bar0 = gf3d_entity_init("bar",true,0,1,false);
-    bar1 = gf3d_entity_init("bar",true,0,1,false);
-    bar2 = gf3d_entity_init("bar",true,0,1,false);
-    bar3 = gf3d_entity_init("bar",true,0,1,false);
-
-    gf3d_entity_move(bar0,-4,0,15);
-    gf3d_entity_move(bar1,-8,0,15);
-    gf3d_entity_move(bar2,-12,0,15);
-    gf3d_entity_move(bar3,-16,0,15);
-
-    gf3d_update_entity_bounding_box(bar0,0,0);
-    gf3d_update_entity_bounding_box(bar1,0,0);
-    gf3d_update_entity_bounding_box(bar2,0,0);
-    gf3d_update_entity_bounding_box(bar3,0,0);
+  //  gf3d_update_entity_bounding_box(sky,0,0);
 
     gf3d_physics_set_time();
-    player = gf3d_player_init();
+    //player = gf3d_player_init();
     Bool jump = false;
     slog("starting main game loop");
 
 
 
-    mouse = gf3d_sprite_load("images/pointer.png",32,32, 16);
+
     // main game loop
+    //test = gf3d_sprite_load("images/paper_mario_font_clean.png",24,24,168);
+
     slog("gf3d main loop begin");
 
+    //map = gf3d_sprite_load("images/map.png",608,480,1);
+    //title = gf3d_sprite_load("images/paper_mario_title.png",467,214,1);
+    int frame = 0;
+    Bool click = false;
+    gf3d_level_load_read_config("config/main_menu.json");
     while(!done)
     {
 
@@ -177,66 +124,66 @@ int main(int argc,char *argv[])
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin(); //gets image from swap chain exectues command buffer with that image returns image to swap chain
-        gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
+        //bufferFrame2 = gf3d_vgraphics_render_begin();
+
         SDL_GetMouseState(&mousex,&mousey);
-        slog("mouse (%i,%i)",mousex,mousey);
+        //slog("mouse (%i,%i)",mousex,mousey);
         //update game things here
-
-        gf3d_vgraphics_rotate_camera(0.001);
-                frame = frame + 0.05;
-                if (frame >= 24)frame = 0;
-                mouseFrame = (mouseFrame+1) %16;
-
-
+        gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_model_pipeline(),bufferFrame);
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_overlay_pipeline(),bufferFrame);
-        //uiBufferFrame = gf3d_vgraphics_render_begin();
-        //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_ui_pipeline(),bufferFrame);
-        slog("frame number is %d",bufferFrame);
-        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_model_pipeline());
-        //uiCommandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_ui_pipeline());
 
-        gf3d_entity_draw(wall,0,bufferFrame,commandBuffer);
-        //gf3d_entity_draw(wall3,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(wall4,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(wall5,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(wall6,0,bufferFrame,commandBuffer);
-        //gf3d_entity_draw(wall2,0,bufferFrame,commandBuffer);
-        gf3d_player_draw(bufferFrame,commandBuffer);
-        gf3d_entity_draw(floor0,0,bufferFrame,commandBuffer);
-      //  gf3d_entity_draw(floor1,0,bufferFrame,commandBuffer);
-        //gf3d_entity_draw(floor2,0,bufferFrame,commandBuffer);
-      //  gf3d_entity_draw(floor3,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(goomba,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(koopa,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(toad,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(pillar0,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(pillar1,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(pillar2,0,bufferFrame,commandBuffer);
+        //commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_model_pipeline());
 
-        gf3d_entity_draw(bar0,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(bar1,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(bar2,0,bufferFrame,commandBuffer);
-        gf3d_entity_draw(bar3,0,bufferFrame,commandBuffer);
-        slog("hello");
+      //  gf3d_entity_draw(sky,0,bufferFrame,commandBuffer);
+
+        //gf3d_player_draw(bufferFrame,commandBuffer);
+        //gf3d_entity_draw(floor0,0,bufferFrame,commandBuffer);
 
 
-
-
-        slog("hi");
         //gf3d_command_rendering_end_graphics(commandBuffer);
-        //gf3d_command_rendering_end_ui(uiCommandBuffer);
-
-        gf3d_command_rendering_end(commandBuffer);
 
         // 2D overlay rendering
-        commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_overlay_pipeline());
+        //commandBuffer = gf3d_command_rendering_begin(bufferFrame,gf3d_vgraphics_get_graphics_overlay_pipeline());
+        //gf3d_sprite_draw(mouse,vector2d(mousex,mousey),1,bufferFrame,commandBuffer);
+        //gf3d_sprite_draw(mouse,vector2d(30,30),2,bufferFrame,commandBuffer);
+        if(keys[SDL_SCANCODE_UP] && !click)
+        {
+          click = true;
+          if(frame==167)
+            frame=0;
+          else
+            frame = frame +1;
+          slog("frame = %d",frame);
+        }
+        if(!keys[SDL_SCANCODE_UP])
+          click = false;
+/*
+        gf3d_sprite_draw(mouse,vector2d(mousex,mousey),frame,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(red_tile,vector2d(30,30),1,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(h,vector2d(45,33),64,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(p,vector2d(65,33),72,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(space,vector2d(85,33),0,bufferFrame,commandBuffer);
 
-        gf3d_sprite_draw(mouse,vector2d(mousex,mousey),mouseFrame, bufferFrame,commandBuffer);
 
-        gf3d_command_rendering_end(commandBuffer);
+        gf3d_sprite_draw(one,vector2d(95,33),84,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(zero,vector2d(115,33),83,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(slash,vector2d(135,33),24,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(one2,vector2d(145,33),84,bufferFrame,commandBuffer);
+        gf3d_sprite_draw(zero2,vector2d(165,33),83,bufferFrame,commandBuffer);
+        */
+        //gf3d_sprite_draw(map,vector2d(0,0),0,bufferFrame,commandBuffer);
+        //gf3d_sprite_draw(title,vector2d(30,30),0,bufferFrame,commandBuffer);
 
+        done = gf3d_level_load_draw_all(bufferFrame);
+        //gf3d_sprite_draw(mouse,vector2d(mousex,mousey),frame,bufferFrame,commandBuffer);
+        //gf3d_sprite_draw(mouse,vector2d(mousex,mousey),mouseFrame, bufferFrame,commandBuffer2);
+        //gf3d_command_rendering_end_graphics(commandBuffer);
+
+
+        //gf3d_command_rendering_end_graphics(commandBuffer);
 
         gf3d_vgraphics_render_end(bufferFrame);
+
         //bufferFrame = gf3d_vgraphics_render_begin();
 
 
@@ -247,7 +194,7 @@ int main(int argc,char *argv[])
         //}
         //gf3d_update_all_entities();
         //slog("player think");
-        gf3d_player_think();
+
         //gf3d_player_update(player);
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());

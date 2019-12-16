@@ -475,15 +475,6 @@ void gf3d_vgraphics_render_end(Uint32 imageIndex)
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = NULL; // Optional
 
-    vkQueuePresentKHR(gf3d_vqueues_get_present_queue(), &presentInfo);
-
-    submitInfo.commandBufferCount = gf3d_command_pool_get_used_buffer_count(gf3d_vgraphics.graphicsCommandPool);
-    submitInfo.pCommandBuffers = gf3d_command_pool_get_used_buffers(gf3d_vgraphics.graphicsCommandPool);
-
-    if (vkQueueSubmit(gf3d_vqueues_get_graphics_queue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-    {
-        slog("failed to submit draw command buffer!");
-    }
 
     vkQueuePresentKHR(gf3d_vqueues_get_present_queue(), &presentInfo);
 }

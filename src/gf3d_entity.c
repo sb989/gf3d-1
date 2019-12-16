@@ -46,7 +46,7 @@ Entity *gf3d_entity_new()
     for (i = 0; i < gf3d_entity_manager.entity_max; i++)
     {
 
-        slog("the _inuse flage for this entity is %u",gf3d_entity_manager.entity_list[i]._inuse);
+        //slog("the _inuse flage for this entity is %u",gf3d_entity_manager.entity_list[i]._inuse);
 
         if (gf3d_entity_manager.entity_list[i]._inuse)continue;
         //. found a free entity
@@ -328,6 +328,16 @@ void gf3d_entity_setup_cube_plane(Entity * e)
   e->cp.yz2.planeVert[2] = vector3d(x2,y2,z2);
   e->cp.yz2.planeVert[3] = vector3d(x2,y2,z1);
 
+}
+
+int gf3d_entity_get_current_health(Entity *e)
+{
+  return e->health;
+}
+
+int gf3d_entity_get_max_health(Entity *e)
+{
+  return e->healthmax;
 }
 
 

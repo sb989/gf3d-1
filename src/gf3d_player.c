@@ -51,9 +51,12 @@ Entity * gf3d_player_init()
   //player->touch = &(gf3d_player_touch);
   gf3d_player_manager.player->acceleration = vector3d(0,0,-9.8);
   slog("mario created");
-  gf3d_entity_move(gf3d_player_manager.player,0,0,20);
+  gf3d_entity_move(gf3d_player_manager.player,0,0,80);
   gf3d_update_entity_bounding_box(gf3d_player_manager.player,0,0);
   slog("vertex coiunt = %d",gf3d_player_manager.player->model->mesh[0]->vertexCount);
+  gf3d_player_manager.player->health = 10;
+  gf3d_player_manager.player->healthmax = 10;
+  gf3d_player_manager.player->name = "mario";
   /*for (k = 0;k<gf3d_player_manager.player->model->mesh[0]->vertexCount;k++)
   {
     Vertex * temp = gf3d_player_manager.player->model->mesh[0]->buffer;
@@ -691,4 +694,20 @@ void gf3d_player_draw(Uint32 bufferFrame,VkCommandBuffer commandBuffer)
     gf3d_model_draw(gf3d_player_manager.player->secondaryModel,bufferFrame,commandBuffer,(*(gf3d_player_manager.player)->entityMat),gf3d_player_manager.currentFrame);
   }
   //gf3d_entity_draw(gf3d_player_manager.player,gf3d_player_manager.currentFrame,bufferFrame,commandBuffer);
+}
+
+int gf3d_player_get_current_health()
+{
+  return gf3d_entity_get_current_health(gf3d_player_manager.player);
+}
+
+int gf3d_player_get_max_health()
+{
+  return gf3d_entity_get_max_health(gf3d_player_manager.player);
+}
+Vector3D gf3d_player_get_position();
+int gf3d_player_get_x_position()
+{
+  Entity *e = gf3d_player_manager.player;
+  return e->position.x;
 }

@@ -19,7 +19,7 @@ Bool gf3d_collision_is_colliding(Entity * e1,Entity * other1)
     if(e.boundingY1-5 <= other.boundingY2 && e.boundingY2-.5 >= other.boundingY1)
     {
 
-      if(e.boundingZ1 <= other.boundingZ2+.5 && e.boundingZ2 >= other.boundingZ1-.5)
+      if(e.boundingZ1 <= other.boundingZ2 && e.boundingZ2 >= other.boundingZ1)
       {
         return true;
       }
@@ -44,6 +44,7 @@ void gf3d_collision_update_entity(Entity *e)
       other = gf3d_entity_manager_get_entity(i);
       if(e==other) continue;
       if(other->_inuse == 0) continue;
+      if(other->state == ES_Dead) continue;
 
       //slog("%s,%s",e->name,other->name);
       else
@@ -59,6 +60,17 @@ void gf3d_collision_update_entity(Entity *e)
             {
               gf3d_physics_attack_enemy(e,push);
               other->state = ES_Dead;
+            }
+            else if(other->isEnemy)
+            {
+              vector3d_scale(push,push,50);
+              gf3d_physics_collision_push_back(e,push);
+              //gf3d_physics_attack_enemy(e,push);
+              e->health = e->health -2;
+              if(e->health ==0 && strcmp(e->name,"mario")==0)
+              {
+                gf3d_level_load_read_config("config/gameover.json");
+              }
             }
             else
               gf3d_physics_collision_push_back(e,push);
@@ -125,16 +137,16 @@ Vector3D gf3d_face_collision_detection(Entity * e, Entity * other)
   switch((b1.boundingZ2 - b2.boundingZ2)>=0)
   {
     case(0):
-      if(b2.boundingZ1-.5<b1.boundingZ2+.5)
+      if(b2.boundingZ1<b1.boundingZ2)
       {
-        zDiff = b1.boundingZ2+.5 - b2.boundingZ1-.5;
+        zDiff = b1.boundingZ2 - b2.boundingZ1;
         zDir = -1;
       }
       break;
     case(1):
-      if(b1.boundingZ1-.5<b2.boundingZ2+.5)
+      if(b1.boundingZ1<b2.boundingZ2)
       {
-        zDiff = b2.boundingZ2+.5 - b1.boundingZ1-.5;
+        zDiff = b2.boundingZ2 - b1.boundingZ1;
       }
       break;
   }

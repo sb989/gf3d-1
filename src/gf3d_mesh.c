@@ -79,7 +79,7 @@ Mesh *gf3d_mesh_new()
         {
             gf3d_mesh.mesh_list[i]._inuse = 1;
             gf3d_mesh.mesh_list[i]._refCount = 1;
-            slog("returning unused mesh");
+            //slog("returning unused mesh");
             return &gf3d_mesh.mesh_list[i];
         }
     }
@@ -90,7 +90,7 @@ Mesh *gf3d_mesh_new()
             gf3d_mesh_delete(&gf3d_mesh.mesh_list[i]);
             gf3d_mesh.mesh_list[i]._inuse = 1;
             gf3d_mesh.mesh_list[i]._refCount = 1;
-            slog("returning recyled mesh");
+            //slog("returning recyled mesh");
             return &gf3d_mesh.mesh_list[i];
         }
     }
@@ -227,15 +227,15 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
     VkDeviceMemory stagingBufferMemory;
 
     bufferSize = sizeof(Vertex) * vcount;
-    slog("vcount was used");
+    //slog("vcount was used");
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
 
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices, (size_t) bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
-    slog("line 231");
+    //slog("line 231");
     gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT|VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &mesh->buffer, &mesh->bufferMemory);
-    slog("mesh used");
+    //slog("mesh used");
     gf3d_vgraphics_copy_buffer(stagingBuffer, mesh->buffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, NULL);
@@ -248,7 +248,7 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
 
     gf3d_mesh_setup_face_buffers(mesh,faces,fcount);
 
-    slog("created a mesh with %i vertices and %i face",vcount,fcount);
+    //slog("created a mesh with %i vertices and %i face",vcount,fcount);
 }
 
 Mesh *gf3d_mesh_load(char *filename)

@@ -4,6 +4,7 @@
 layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     vec2 frame_offset;
+
 } ubo;
 
 out gl_PerVertex
@@ -17,6 +18,6 @@ layout(location = 0) out vec2 fragTexCoord;
 
 void main()
 {
-    gl_Position = ubo.model * vec4(inPosition,0, 1.0);
+    gl_Position =  ubo.model * vec4(inPosition,0, 1.0);
     fragTexCoord = inTexCoord + ubo.frame_offset;
 }

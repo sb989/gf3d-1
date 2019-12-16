@@ -437,7 +437,7 @@ Pipeline *gf3d_pipeline_basic_sprite_create(VkDevice device,char *vertFile,char 
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.minDepthBounds = 0.0f; // Optional
-    depthStencil.maxDepthBounds = 1.0f; // Optional
+    depthStencil.maxDepthBounds = 0.0f; // Optional
     depthStencil.stencilTestEnable = VK_FALSE;
 
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -668,8 +668,7 @@ void gf3d_pipeline_reset_frame(Pipeline *pipe,Uint32 frame)
         slog("frame %i outside the range of supported descriptor Pools (%i)",frame,gf3d_pipeline.chainLength);
         return;
     }
-    slog("%d",sizeof(*pipe->descriptorCursor));
-    slog("%d",frame);
+
     pipe->descriptorCursor[frame] = 0;
 }
 

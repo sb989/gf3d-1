@@ -12,6 +12,7 @@ void gf3d_player_think();
 void gf3d_player_update(Entity * e);
 void gf3d_player_update_frame();
 void gf3d_player_draw(Uint32 bufferFrame,VkCommandBuffer commandBuffer);
-
+int gf3d_player_get_max_health();
+int gf3d_player_get_current_health();
 
 #endif

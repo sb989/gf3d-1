@@ -53,8 +53,8 @@ typedef struct Entity_S
     void (*think) (struct Entity_S* self);   /**<function called on entity think*/
     void (*update)(struct Entity_S* self);   /**<function called on entity update*/
     void (*touch) (struct Entity_S* self,struct Entity_S* other);   /**<function called on entity think*/
-    float           health;
-    float           healthmax;
+    int             health;
+    int             healthmax;
     float           armor;
     float           experience;
     float           level;
@@ -77,7 +77,6 @@ typedef struct Entity_S
     void *data;                     /**<additional entity specific data*/
 
 
-    float           otherStuff;
 
 }Entity;
 

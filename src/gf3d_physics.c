@@ -61,7 +61,9 @@ void gf3d_physics_collision_push_back(Entity *e,Vector3D push)
   if(strcmp(e->name,"mario")==0)
   {
     //slog("mario");
-    //gf3d_vgraphics_move_camera(dist);
+    dist.y = 0;
+    dist.z = 0;
+    gf3d_vgraphics_move_camera(dist);
   }
 
 }
